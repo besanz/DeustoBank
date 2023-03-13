@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "string": "cpp"
+        "string": "cpp",
+        "transaccion.h": "c",
+        "cliente.h": "c"
     }
 }
