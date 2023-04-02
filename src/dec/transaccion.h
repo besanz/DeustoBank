@@ -1,7 +1,7 @@
 #ifndef TRANSACCION_H
 #define TRANSACCION_H
 
-#include "struct.h"
+#include "../struct.h"
 
 void registrar_transaccion(Transaccion* transaccion);
 Transaccion* listar_transacciones(int numero_cuenta);

@@ -1,0 +1,3 @@
+
+
+gcc src/main.c src/impl/cliente.c src/impl/cuenta.c src/impl/transaccion.c src/impl/db.c -o program -Isrc -Isrc/dec -IC:\sqlite3 -LC:\sqlite3 -lsqlite3

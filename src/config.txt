@@ -1,5 +1,0 @@
-admin_usuario=admin
-admin_clave=1234
-ruta_datos=./datos
-ruta_db=./db
-nombre_db=deustobank.db

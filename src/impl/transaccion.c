@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "transaccion.h"
+#include "../dec/transaccion.h"
 
 typedef struct TransaccionNodo {
     Transaccion transaccion;

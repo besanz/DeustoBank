@@ -1,7 +1,7 @@
 #ifndef CUENTA_H
 #define CUENTA_H
 
-#include "struct.h"
+#include "../struct.h"
 
 CuentaBancaria* crear_cuenta(Cliente* titular);
 void mostrar_informacion_cuenta(int numero_cuenta);

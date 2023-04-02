@@ -1,7 +1,7 @@
 #ifndef CLIENTE_H
 #define CLIENTE_H
 
-#include "struct.h"
+#include "../struct.h"
 
 Cliente* iniciar_sesion(char* usuario, char* contrasena);
 void registrar_cliente(Cliente* nuevo_cliente);
