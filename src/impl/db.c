@@ -652,13 +652,85 @@ void db_registrar_transaccion(Transaccion *transaccion)
     cerrar_db(db);
 }
 
-CuentaBancaria* db_buscar_cuenta_por_numero(int numero_cuenta)
-{
-    
-}
+CuentaBancaria* db_buscar_cuenta_por_numero(const char *numero_cuenta) {
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    CuentaBancaria *cuenta = NULL;
 
+    int rc = sqlite3_open("deustobank.db", &db);
+    if (rc != SQLITE_OK) {
+        printf("No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        return NULL;
+    }
+
+    const char *sql = "SELECT cb.*, c.* FROM CuentaBancaria cb INNER JOIN Cliente c ON c.ClienteID = cb.ClienteID WHERE cb.NumeroCuenta = ?";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Error en la consulta: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return NULL;
+    }
+
+    sqlite3_bind_text(stmt, 1, numero_cuenta, -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        cuenta = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
+        strncpy(cuenta->numeroCuenta, (const char *)sqlite3_column_text(stmt, 0), sizeof(cuenta->numeroCuenta));
+                cuenta->saldo = (float)sqlite3_column_double(stmt, 1);
+        cuenta->cliente = (Cliente *)malloc(sizeof(Cliente));
+        cuenta->cliente->clienteID = sqlite3_column_int(stmt, 3);
+        strncpy(cuenta->codigoBIC, (const char *)sqlite3_column_text(stmt, 4), sizeof(cuenta->codigoBIC));
+        strncpy(cuenta->cliente->nombre, (const char *)sqlite3_column_text(stmt, 6), sizeof(cuenta->cliente->nombre));
+        strncpy(cuenta->cliente->apellido, (const char *)sqlite3_column_text(stmt, 7), sizeof(cuenta->cliente->apellido));
+        strncpy(cuenta->cliente->dni, (const char *)sqlite3_column_text(stmt, 8), sizeof(cuenta->cliente->dni));
+        strncpy(cuenta->cliente->direccion, (const char *)sqlite3_column_text(stmt, 9), sizeof(cuenta->cliente->direccion));
+        strncpy(cuenta->cliente->telefono, (const char *)sqlite3_column_text(stmt, 10), sizeof(cuenta->cliente->telefono));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return cuenta;
+}
 
 CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID) {
-    // Implementación de la función aquí
-}
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    CuentaBancaria *cuenta = NULL;
 
+    int rc = sqlite3_open("    deustobank.db", &db);
+    if (rc != SQLITE_OK) {
+        printf("No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        return NULL;
+    }
+
+    const char *sql = "SELECT cb.*, c.* FROM CuentaBancaria cb INNER JOIN Cliente c ON c.ClienteID = cb.ClienteID WHERE cb.ClienteID = ?";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Error en la consulta: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return NULL;
+    }
+
+    sqlite3_bind_int(stmt, 1, clienteID);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        cuenta = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
+        strncpy(cuenta->numeroCuenta, (const char *)sqlite3_column_text(stmt, 0), sizeof(cuenta->numeroCuenta));
+        cuenta->saldo = (float)sqlite3_column_double(stmt, 1);
+        cuenta->cliente = (Cliente *)malloc(sizeof(Cliente));
+        cuenta->cliente->clienteID = sqlite3_column_int(stmt, 3);
+        strncpy(cuenta->codigoBIC, (const char *)sqlite3_column_text(stmt, 4), sizeof(cuenta->codigoBIC));
+
+        strncpy(cuenta->cliente->nombre, (const char *)sqlite3_column_text(stmt, 6), sizeof(cuenta->cliente->nombre));
+        strncpy(cuenta->cliente->apellido, (const char *)sqlite3_column_text(stmt, 7), sizeof(cuenta->cliente->apellido));
+        strncpy(cuenta->cliente->dni, (const char *)sqlite3_column_text(stmt, 8), sizeof(cuenta->cliente->dni));
+        strncpy(cuenta->cliente->direccion, (const char *)sqlite3_column_text(stmt, 9), sizeof(cuenta->cliente->direccion));
+        strncpy(cuenta->cliente->telefono, (const char *)sqlite3_column_text(stmt, 10), sizeof(cuenta->cliente->telefono));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return cuenta;
+}
