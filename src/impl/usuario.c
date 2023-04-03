@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
-#include "usuario.h"
+
+#include "../dec/usuario.h"
 
 Usuario *crear_usuario(int usuarioID, char *nombreUsuario, char *contrasena, TipoUsuario tipo, void *datos)
 {

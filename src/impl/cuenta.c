@@ -4,37 +4,65 @@
 #include "../dec/cuenta.h"
 #include "../dec/db.h"
 
-CuentaBancaria* crear_cuenta(Cliente* titular) {
-    return db_crear_cuenta(titular);
+CuentaBancaria *crear_cuenta(Cliente *titular)
+{
+    if (titular == NULL)
+    {
+        printf("Error: El cliente no está registrado.\n");
+        return NULL;
+    }
+
+    CuentaBancaria *cuenta = db_crear_cuenta(titular);
+    if (cuenta != NULL)
+    {
+        printf("Cuenta creada exitosamente.\n");
+        printf("Número de cuenta: %s\n", cuenta->numeroCuenta);
+        printf("Saldo inicial: %.2f\n", cuenta->saldo);
+        printf("Código BIC: %s\n", cuenta->codigoBIC);
+    }
+    else
+    {
+        printf("Error al crear la cuenta.\n");
+    }
+    return cuenta;
 }
 
-void mostrar_informacion_cuenta(int numero_cuenta) {
-    CuentaBancaria* cuenta = db_buscar_cuenta_por_numero(numero_cuenta);
-    if (cuenta) {
+void mostrar_informacion_cuenta(int numero_cuenta)
+{
+    CuentaBancaria *cuenta = db_buscar_cuenta_por_numero(numero_cuenta);
+    if (cuenta)
+    {
         printf("Numero de cuenta: %d\n", cuenta->numeroCuenta);
         printf("Saldo: %.2f\n", cuenta->saldo);
         printf("Titular: %s %s\n", cuenta->cliente->nombre, cuenta->cliente->apellido);
-    } else {
+    }
+    else
+    {
         printf("No se encontro la cuenta con el numero %d\n", numero_cuenta);
     }
 }
 
-void depositar_dinero(int numero_cuenta, float monto) {
+void depositar_dinero(int numero_cuenta, float monto)
+{
     db_depositar_dinero(numero_cuenta, monto);
 }
 
-void retirar_dinero(int numero_cuenta, float monto) {
+void retirar_dinero(int numero_cuenta, float monto)
+{
     db_retirar_dinero(numero_cuenta, monto);
 }
 
-void transferir_dinero(int cuenta_origen, int cuenta_destino, float monto) {
+void transferir_dinero(int cuenta_origen, int cuenta_destino, float monto)
+{
     db_transferir_dinero(cuenta_origen, cuenta_destino, monto);
 }
 
-void cerrar_cuenta(int numero_cuenta) {
+void cerrar_cuenta(int numero_cuenta)
+{
     db_cerrar_cuenta(numero_cuenta);
 }
 
-CuentaBancaria* buscar_cuenta_por_numero(int numero_cuenta) {
+CuentaBancaria *buscar_cuenta_por_numero(int numero_cuenta)
+{
     return db_buscar_cuenta_por_numero(numero_cuenta);
 }

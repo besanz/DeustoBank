@@ -36,10 +36,12 @@ typedef struct {
 
 // Estructura de datos para una cuenta bancaria
 typedef struct {
-    int numeroCuenta;
+    char numeroCuenta[25]; // 24 dígitos + el caracter nulo
     float saldo;
     Cliente *cliente;
+    char codigoBIC[12]; // 11 caracteres + el caracter nulo
 } CuentaBancaria;
+
 
 // Estructura de datos para una transaccion bancaria
 typedef struct {
