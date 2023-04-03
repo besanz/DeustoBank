@@ -20,6 +20,7 @@ int db_existe_usuario(const char *nombreUsuario); //Sin hacer
 
 CuentaBancaria* db_crear_cuenta(Cliente* titular);
 CuentaBancaria* db_buscar_cuenta_por_numero(int numero_cuenta);
+CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID);
 void db_depositar_dinero(int numero_cuenta, float monto);
 void db_retirar_dinero(int numero_cuenta, float monto);
 void db_transferir_dinero(int cuenta_origen, int cuenta_destino, float monto);

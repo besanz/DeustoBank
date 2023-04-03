@@ -9,6 +9,7 @@ void actualizar_cliente(int id_cliente, Cliente* datos_actualizados, Usuario* us
 void eliminar_cliente(int id_cliente);
 Cliente* buscar_cliente_por_id(int id_cliente);
 void menu_cliente_con_cuenta(Cliente *cli);
+void mostrar_info_cliente(Cliente *cliente);
 
 
 #endif // CLIENTE_H

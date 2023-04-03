@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "dec/cliente.h"
 #include "dec/cuenta.h"
@@ -195,7 +194,7 @@ void menu_administrador()
 
 void menu_cliente(Cliente *cliente)
 {
-    CuentaBancaria *cuenta = db_buscar_cuenta_por_cliente_id(cliente->clienteID);
+    CuentaBancaria *cuenta = db_buscar_cuenta_por_cliente(cliente->clienteID);
     int opcion;
     do
     {

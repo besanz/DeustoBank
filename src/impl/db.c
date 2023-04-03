@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
+
 #include "../dec/db.h"
 // Iniciar y cerrar conexion con base de datos
 int abrir_db(sqlite3 **db)
@@ -624,6 +626,9 @@ void db_registrar_transaccion(Transaccion *transaccion)
     sqlite3_stmt *stmt;
     abrir_db(&db);
 
+    char fecha_str[20];
+    strftime(fecha_str, sizeof(fecha_str), "%Y-%m-%d %H:%M:%S", localtime(&transaccion->fecha));
+
     char *sql = "INSERT INTO transacciones (numeroCuentaOrigen, numeroCuentaDestino, importe, fecha) VALUES (?, ?, ?, ?)";
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK)
@@ -631,7 +636,7 @@ void db_registrar_transaccion(Transaccion *transaccion)
         sqlite3_bind_int(stmt, 1, transaccion->numeroCuentaOrigen);
         sqlite3_bind_int(stmt, 2, transaccion->numeroCuentaDestino);
         sqlite3_bind_double(stmt, 3, transaccion->importe);
-        sqlite3_bind_text(stmt, 4, transaccion->fecha, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 4, fecha_str, -1, SQLITE_TRANSIENT);
 
         if (sqlite3_step(stmt) != SQLITE_DONE)
         {
@@ -646,3 +651,14 @@ void db_registrar_transaccion(Transaccion *transaccion)
     sqlite3_finalize(stmt);
     cerrar_db(db);
 }
+
+CuentaBancaria* db_buscar_cuenta_por_numero(int numero_cuenta)
+{
+    
+}
+
+
+CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID) {
+    // Implementación de la función aquí
+}
+

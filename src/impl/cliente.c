@@ -84,3 +84,8 @@ void menu_cliente_con_cuenta(Cliente *cli)
         }
     } while (opcion != 7);
 }
+
+void mostrar_info_cliente(Cliente *cliente) {
+    // Implementación de la función aquí
+}
+
