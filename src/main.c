@@ -54,10 +54,10 @@ int main() {
                 // Logica para registrarse
                 break;
             case 3: // Salir
-                printf("Gracias por utilizar DeustoBank. ¡Hasta luego!\n");
+                printf("Gracias por utilizar DeustoBank. Hasta luego!\n");
                 exit(0);
             default:
-                printf("Opcion no válida. Por favor, intente de nuevo.\n");
+                printf("Opcion no valida. Por favor, intente de nuevo.\n");
         }
     }
 
