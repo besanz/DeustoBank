@@ -3,10 +3,6 @@
 #include <time.h>
 #include "../dec/transaccion.h"
 
-typedef struct TransaccionNodo {
-    Transaccion transaccion;
-    struct TransaccionNodo* siguiente;
-} TransaccionNodo;
 
 TransaccionNodo* transacciones = NULL;
 

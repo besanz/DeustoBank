@@ -1,3 +1,1 @@
-naiet sapo
-
-gcc src/main.c src/impl/cliente.c src/impl/cuenta.c src/impl/transaccion.c src/impl/db.c -o program -Isrc -Isrc/dec -IC:\sqlite3 -LC:\sqlite3 -lsqlite3
+gcc src/main.c src/impl/cliente.c src/impl/cuenta.c src/impl/transaccion.c src/impl/db.c lib/sqlite3.c -o startbank -Isrc -Isrc/dec -ILib -DSQLITE_THREADSAFE=0
