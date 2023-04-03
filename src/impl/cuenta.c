@@ -11,11 +11,11 @@ CuentaBancaria* crear_cuenta(Cliente* titular) {
 void mostrar_informacion_cuenta(int numero_cuenta) {
     CuentaBancaria* cuenta = db_buscar_cuenta_por_numero(numero_cuenta);
     if (cuenta) {
-        printf("Número de cuenta: %d\n", cuenta->numeroCuenta);
+        printf("Numero de cuenta: %d\n", cuenta->numeroCuenta);
         printf("Saldo: %.2f\n", cuenta->saldo);
         printf("Titular: %s %s\n", cuenta->cliente->nombre, cuenta->cliente->apellido);
     } else {
-        printf("No se encontró la cuenta con el número %d\n", numero_cuenta);
+        printf("No se encontro la cuenta con el numero %d\n", numero_cuenta);
     }
 }
 

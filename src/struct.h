@@ -8,13 +8,13 @@
 #include <time.h>
 
 
-// Enumeración para los tipos de usuarios
+// Enumeracion para los tipos de usuarios
 typedef enum {
     ADMINISTRADOR,
     CLIENTE
 } TipoUsuario;
 
-// Estructura de datos para un usuario genérico
+// Estructura de datos para un usuario generico
 typedef struct {
     int usuarioID;
     char nombreUsuario[50];
@@ -26,6 +26,7 @@ typedef struct {
 // Estructura de datos para un cliente bancario
 typedef struct {
     int clienteID;
+    int usuario_id;
     char nombre[50];
     char apellido[50];
     char dni[20];
@@ -40,7 +41,7 @@ typedef struct {
     Cliente *cliente;
 } CuentaBancaria;
 
-// Estructura de datos para una transacción bancaria
+// Estructura de datos para una transaccion bancaria
 typedef struct {
     int transaccionID;
     int numeroCuentaOrigen;

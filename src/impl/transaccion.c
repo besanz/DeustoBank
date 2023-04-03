@@ -109,5 +109,3 @@ Informe* mostrar_informe_financiero(int numero_cuenta) {
 
     return informe;
 }
-
-

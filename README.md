@@ -1,18 +1,18 @@
 DeustoBank
 
-DeustoBank es un sistema de banca por línea de comandos que permite a los usuarios realizar transacciones bancarias de manera fácil, rápida y segura. El proyecto está desarrollado en C y C++ y utiliza SQLite3 para el almacenamiento de datos.
+DeustoBank es un sistema de banca por linea de comandos que permite a los usuarios realizar transacciones bancarias de manera facil, rapida y segura. El proyecto esta desarrollado en C y C++ y utiliza SQLite3 para el almacenamiento de datos.
 
-Características
+Caracteristicas
 
-Creación de cuentas bancarias
-Consulta de información de cuentas bancarias
-Depósitos y retiros de dinero
+Creacion de cuentas bancarias
+Consulta de informacion de cuentas bancarias
+Depositos y retiros de dinero
 Transferencias entre cuentas bancarias
-Eliminación de cuentas bancarias
-Gestión de clientes y administradores
+Eliminacion de cuentas bancarias
+Gestion de clientes y administradores
 
 Requisitos
-Para ejecutar DeustoBank, necesitarás lo siguiente:
+Para ejecutar DeustoBank, necesitaras lo siguiente:
 
 Compilador de C y C++ (por ejemplo, GCC)
 
@@ -41,7 +41,7 @@ DeustoBank/
 │ ├── postData.h
 └── struct.h
 
-Compilación y ejecución
+Compilacion y ejecucion
 Para compilar y ejecutar DeustoBank, sigue estos pasos:
 
 Abre una terminal y navega hasta la carpeta del proyecto.
@@ -55,7 +55,7 @@ bash
 ./deustobank
 
 Contribuciones
-Las contribuciones al proyecto son bienvenidas. Por favor, asegúrate de seguir las directrices de contribución y el código de conducta.
+Las contribuciones al proyecto son bienvenidas. Por favor, asegurate de seguir las directrices de contribucion y el codigo de conducta.
 
 Licencia
-Este proyecto está licenciado en la Univ. Deusto
+Este proyecto esta licenciado en la Univ. Deusto
