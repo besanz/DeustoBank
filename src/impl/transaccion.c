@@ -30,10 +30,10 @@ Informe *mostrar_informe_financiero(const char* numero_cuenta) {
 void realizar_transferencia(int cliente_id_origen) {
     char usuario_destino[50];
     float cantidad;
-    Cliente *cliente_destino;
-    Cliente *cliente_origen;
-    CuentaBancaria *cuenta_bancaria_origen = malloc(sizeof(CuentaBancaria));
-    CuentaBancaria *cuenta_bancaria_destino = malloc(sizeof(CuentaBancaria));
+    Cliente *cliente_destino = NULL;
+    Cliente *cliente_origen = NULL;
+    CuentaBancaria *cuenta_bancaria_origen = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
+    CuentaBancaria *cuenta_bancaria_destino = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
     char confirmacion;
 
     printf("Introduce el nombre de usuario destino: ");
@@ -50,9 +50,17 @@ void realizar_transferencia(int cliente_id_origen) {
 
     cliente_origen = db_buscar_cliente_por_id(cliente_id_origen);
     printf("imprime 3\n ");//SÍ LLEGA AQUÍ
+
+    printf("origen: %d\n ",cliente_origen->clienteID);
+    printf("destino: %d\n ", cliente_destino->clienteID);
+    printf("origen: %d\n ",cliente_id_origen);
+    printf("destino: %d\n", cliente_destino->clienteID);
+
+
     cuenta_bancaria_origen = db_buscar_cuenta_por_cliente(cliente_origen->clienteID);
+    printf("Cuenta bancaria origen: %s\n", cuenta_bancaria_origen->numeroCuenta);
     cuenta_bancaria_destino = db_buscar_cuenta_por_cliente(cliente_destino->clienteID);
-    printf("imprime 4\n "); //NO LLEGA AQUÍ
+
     if (cuenta_bancaria_origen == NULL || cuenta_bancaria_destino == NULL) {
         printf("Error al obtener cuentas bancarias.\n");
         return;
@@ -68,7 +76,7 @@ void realizar_transferencia(int cliente_id_origen) {
 
     printf("Informacion de las cuentas:\n\n");
     printf("Cuenta origen:\n");
-    printf("Nombre: %s %s\n", cliente_origen->nombre, cliente_origen->apellido);
+    //printf("Nombre: %s %s\n", cliente_origen->nombre, cliente_origen->apellido);
     printf("Numero de cuenta: %s\n", cuenta_bancaria_origen->numeroCuenta);
 
     printf("\nCuenta destino:\n");

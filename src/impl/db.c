@@ -37,7 +37,7 @@ void db_inicializar()
 
     // Crear la tabla de usuarios si no existe
     const char *sql_usuarios = "CREATE TABLE IF NOT EXISTS usuarios ("
-                               "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                               "usuarioID INTEGER PRIMARY KEY AUTOINCREMENT,"
                                "nombreUsuario TEXT UNIQUE NOT NULL,"
                                "contrasena TEXT NOT NULL,"
                                "tipo TEXT NOT NULL);";
@@ -51,14 +51,14 @@ void db_inicializar()
 
     // Crear la tabla de clientes si no existe
     const char *sql_clientes = "CREATE TABLE IF NOT EXISTS clientes ("
-                               "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                               "clienteID INTEGER PRIMARY KEY AUTOINCREMENT,"
                                "usuarioID INTEGER,"
                                "nombre TEXT NOT NULL,"
                                "apellido TEXT NOT NULL,"
                                "dni TEXT NOT NULL UNIQUE,"
                                "direccion TEXT,"
                                "telefono TEXT,"
-                               "FOREIGN KEY (usuarioID) REFERENCES usuarios (id));";
+                               "FOREIGN KEY (usuarioID) REFERENCES usuarios (usuarioID));";
 
     rc = sqlite3_exec(db, sql_clientes, 0, 0, &zErrMsg);
     if (rc != SQLITE_OK)
@@ -73,7 +73,7 @@ void db_inicializar()
                             "saldo REAL NOT NULL,"
                             "clienteID INTEGER NOT NULL,"
                             "codigoBIC TEXT NOT NULL,"
-                            "FOREIGN KEY (clienteID) REFERENCES clientes (id));";
+                            "FOREIGN KEY (clienteID) REFERENCES clientes (clienteID));";
 
 
     rc = sqlite3_exec(db, sql_cuentas, 0, 0, &zErrMsg);
@@ -163,7 +163,7 @@ void db_actualizar_cliente(int clienteID, Cliente *datos_actualizados, Usuario *
         return;
     }
 
-    snprintf(sql, sizeof(sql), "UPDATE clientes SET nombre = '%s', apellido = '%s', dni = '%s', direccion = '%s', telefono = '%s' WHERE id = %d;",
+    snprintf(sql, sizeof(sql), "UPDATE clientes SET nombre = '%s', apellido = '%s', dni = '%s', direccion = '%s', telefono = '%s' WHERE clienteID = %d;",
              datos_actualizados->nombre, datos_actualizados->apellido, datos_actualizados->dni, datos_actualizados->direccion, datos_actualizados->telefono, clienteID);
 
     rc = sqlite3_exec(db, sql, 0, 0, &zErrMsg);
@@ -204,7 +204,7 @@ void db_eliminar_cliente(int clienteID)
         return;
     }
 
-    snprintf(sql, sizeof(sql), "DELETE FROM clientes WHERE id = %d;", clienteID);
+    snprintf(sql, sizeof(sql), "DELETE FROM clientes WHERE clienteID = %d;", clienteID);
 
     rc = sqlite3_exec(db, sql, 0, 0, &zErrMsg);
 
@@ -215,7 +215,7 @@ void db_eliminar_cliente(int clienteID)
     }
     else
     {
-        snprintf(sql, sizeof(sql), "DELETE FROM usuarios WHERE usuarioID = (SELECT usuarioID FROM clientes WHERE id = %d);", clienteID);
+        snprintf(sql, sizeof(sql), "DELETE FROM usuarios WHERE usuarioID = (SELECT usuarioID FROM clientes WHERE usuarioID = %d);", clienteID);
 
         rc = sqlite3_exec(db, sql, 0, 0, &zErrMsg);
         if (rc != SQLITE_OK)
@@ -248,11 +248,12 @@ Cliente *db_buscar_cliente_por_id(int clienteID)
         {
             cliente = (Cliente *)malloc(sizeof(Cliente));
             cliente->clienteID = sqlite3_column_int(stmt, 0);
-            strncpy(cliente->nombre, (const char *)sqlite3_column_text(stmt, 1), sizeof(cliente->nombre));
-            strncpy(cliente->apellido, (const char *)sqlite3_column_text(stmt, 2), sizeof(cliente->apellido));
-            strncpy(cliente->dni, (const char *)sqlite3_column_text(stmt, 3), sizeof(cliente->dni));
-            strncpy(cliente->direccion, (const char *)sqlite3_column_text(stmt, 4), sizeof(cliente->direccion));
-            strncpy(cliente->telefono, (const char *)sqlite3_column_text(stmt, 5), sizeof(cliente->telefono));
+            strncpy(cliente->nombre, (const char *)sqlite3_column_text(stmt, 2), sizeof(cliente->nombre));
+            strncpy(cliente->apellido, (const char *)sqlite3_column_text(stmt, 3), sizeof(cliente->apellido));
+            strncpy(cliente->dni, (const char *)sqlite3_column_text(stmt, 4), sizeof(cliente->dni));
+            strncpy(cliente->direccion, (const char *)sqlite3_column_text(stmt, 5), sizeof(cliente->direccion));
+            strncpy(cliente->telefono, (const char *)sqlite3_column_text(stmt, 6), sizeof(cliente->telefono));
+            cliente->usuarioID = sqlite3_column_int(stmt, 1);
         }
     }
 
@@ -327,7 +328,7 @@ int db_obtener_usuarioID(const char *nombreUsuario)
     }
 
     // Preparar la consulta SQL
-    sql = "SELECT id FROM usuarios WHERE nombreUsuario = ?;";
+    sql = "SELECT usuarioID FROM usuarios WHERE nombreUsuario = ?;";
 
     // Preparar el statement
     sqlite3_stmt *stmt;
@@ -665,26 +666,21 @@ CuentaBancaria *db_buscar_cuenta_por_numero(const char *numero_cuenta)
     return cuenta;
 }
 
-CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID)
-{
+CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID) {
     sqlite3 *db;
     sqlite3_stmt *stmt;
     CuentaBancaria *cuenta = NULL;
 
     int rc = sqlite3_open("deustobank.db", &db);
-    if (rc != SQLITE_OK)
-    {
+    if (rc != SQLITE_OK) {
         printf("No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
         return NULL;
     }
 
-    const char *sql =   "SELECT cb.numeroCuenta, cb.saldo, cb.clienteID, cb.codigoBIC, "
-                        "c.nombre, c.apellido, c.dni, c.direccion, c.telefono "
-                        "FROM cuentas cb INNER JOIN clientes c ON c.clienteID = cb.clienteID WHERE cb.clienteID = ?";
+    const char *sql = "SELECT cb.numeroCuenta, cb.saldo, cb.clienteID, cb.codigoBIC, cl.nombre, cl.apellido, cl.dni, cl.direccion, cl.telefono FROM cuentas cb INNER JOIN clientes cl ON cl.clienteID = cb.clienteID WHERE cb.clienteID = ?";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-    if (rc != SQLITE_OK)
-    {
+    if (rc != SQLITE_OK) {
         printf("Error en la consulta: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         return NULL;
@@ -692,26 +688,26 @@ CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID)
 
     sqlite3_bind_int(stmt, 1, clienteID);
 
-    if (sqlite3_step(stmt) == SQLITE_ROW)
-    {
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
         cuenta = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
         strncpy(cuenta->numeroCuenta, (const char *)sqlite3_column_text(stmt, 0), sizeof(cuenta->numeroCuenta));
         cuenta->saldo = (float)sqlite3_column_double(stmt, 1);
         cuenta->cliente = (Cliente *)malloc(sizeof(Cliente));
         cuenta->cliente->clienteID = sqlite3_column_int(stmt, 2);
-        strncpy(cuenta->codigoBIC, (const char *)sqlite3_column_text(stmt, 4), sizeof(cuenta->codigoBIC));
+        strncpy(cuenta->codigoBIC, (const char *)sqlite3_column_text(stmt, 3), sizeof(cuenta->codigoBIC));
 
-        strncpy(cuenta->cliente->nombre, (const char *)sqlite3_column_text(stmt, 6), sizeof(cuenta->cliente->nombre));
-        strncpy(cuenta->cliente->apellido, (const char *)sqlite3_column_text(stmt, 7), sizeof(cuenta->cliente->apellido));
-        strncpy(cuenta->cliente->dni, (const char *)sqlite3_column_text(stmt, 8), sizeof(cuenta->cliente->dni));
-        strncpy(cuenta->cliente->direccion, (const char *)sqlite3_column_text(stmt, 9), sizeof(cuenta->cliente->direccion));
-        strncpy(cuenta->cliente->telefono, (const char *)sqlite3_column_text(stmt, 10), sizeof(cuenta->cliente->telefono));
+        strncpy(cuenta->cliente->nombre, (const char *)sqlite3_column_text(stmt, 4), sizeof(cuenta->cliente->nombre));
+        strncpy(cuenta->cliente->apellido, (const char *)sqlite3_column_text(stmt, 5), sizeof(cuenta->cliente->apellido));
+        strncpy(cuenta->cliente->dni, (const char *)sqlite3_column_text(stmt, 6), sizeof(cuenta->cliente->dni));
+        strncpy(cuenta->cliente->direccion, (const char *)sqlite3_column_text(stmt, 7), sizeof(cuenta->cliente->direccion));
+        strncpy(cuenta->cliente->telefono, (const char *)sqlite3_column_text(stmt, 8), sizeof(cuenta->cliente->telefono));
     }
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
     return cuenta;
 }
+
 
 void db_agregar_transaccion(const char *numeroCuentaOrigen, const char *numeroCuentaDestino, float importe, time_t fecha, TipoTransaccion tipo)
 {

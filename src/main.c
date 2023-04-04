@@ -18,9 +18,9 @@ void temporizador_registro_usuario();
 void temporizador_pantalla_registro();
 void temporizador_salida();
 void temporizador_crear_cuenta();
-/* void menu_gestionar_clientes();
+void menu_gestionar_clientes();
 void menu_gestionar_cuentas();
-void menu_gestionar_transferencias(); */
+void menu_gestionar_transferencias();
 
 int main()
 {
