@@ -4,30 +4,86 @@
 #include "../dec/cuenta.h"
 #include "../dec/db.h"
 
-CuentaBancaria *crear_cuenta(Cliente *titular)
-{
-    if (titular == NULL)
-    {
-        printf("Error: El cliente no está registrado.\n");
-        return NULL;
-    }
+void generar_numero_cuenta(char *numero_cuenta) {
+    srand(time(NULL));
+    const char *prefijo = "DEUSTOBNK";
+    unsigned long long numero_aleatorio;
 
-    CuentaBancaria *cuenta = db_crear_cuenta(titular);
-    if (cuenta != NULL)
-    {
-        printf("Cuenta creada exitosamente.\n");
-        printf("Número de cuenta: %s\n", cuenta->numeroCuenta);
-        printf("Saldo inicial: %.2f\n", cuenta->saldo);
-        printf("Código BIC: %s\n", cuenta->codigoBIC);
-    }
-    else
-    {
-        printf("Error al crear la cuenta.\n");
-    }
-    return cuenta;
+    do {
+        numero_aleatorio = (unsigned long long)rand() * (unsigned long long)rand();
+        sprintf(numero_cuenta, "%s%017llu", prefijo, numero_aleatorio % 100000000000000000ULL);
+    } while (cuenta_existe(numero_cuenta));
 }
 
-void mostrar_informacion_cuenta(int numero_cuenta)
+void crear_cuenta(int clienteID) {
+    char numero_cuenta[27];
+    generar_numero_cuenta(numero_cuenta);
+
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    int rc;
+
+    if (abrir_db(&db)) {
+        fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+
+    const char *sql = "INSERT INTO cuentas (numeroCuenta, saldo, clienteID) VALUES (?, 0, ?);";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+    if (rc == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, numero_cuenta, -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 2, clienteID);
+
+        rc = sqlite3_step(stmt);
+        if (rc != SQLITE_DONE) {
+            fprintf(stderr, "Error al crear la cuenta bancaria: %s\n", sqlite3_errmsg(db));
+        } else {
+            printf("Cuenta bancaria creada exitosamente.\n");
+            printf("Numero de cuenta: %s\n", numero_cuenta);
+        }
+    } else {
+        fprintf(stderr, "Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    cerrar_db(db);
+}
+
+int cuenta_existe(const char *numero_cuenta) {
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    int rc;
+    int cuenta_encontrada = 0;
+
+    if (abrir_db(&db)) {
+        fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        return 0;
+    }
+
+    const char *sql = "SELECT COUNT(*) FROM cuentas WHERE numeroCuenta = ?;";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+    if (rc == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, numero_cuenta, -1, SQLITE_STATIC);
+
+        rc = sqlite3_step(stmt);
+        if (rc == SQLITE_ROW) {
+            cuenta_encontrada = sqlite3_column_int(stmt, 0);
+        } else {
+            fprintf(stderr, "Error al buscar cuentas: %s\n", sqlite3_errmsg(db));
+        }
+    } else {
+        fprintf(stderr, "Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    cerrar_db(db);
+
+    return cuenta_encontrada;
+}
+
+void mostrar_informacion_cuenta(const char *numero_cuenta) 
 {
     CuentaBancaria *cuenta = db_buscar_cuenta_por_numero(numero_cuenta);
     if (cuenta)
@@ -42,27 +98,28 @@ void mostrar_informacion_cuenta(int numero_cuenta)
     }
 }
 
-void depositar_dinero(int numero_cuenta, float monto)
+void depositar_dinero(const char * numero_cuenta, float monto)
 {
     db_depositar_dinero(numero_cuenta, monto);
 }
 
-void retirar_dinero(int numero_cuenta, float monto)
+void retirar_dinero(const char* numero_cuenta, float monto)
 {
     db_retirar_dinero(numero_cuenta, monto);
 }
 
-void transferir_dinero(int cuenta_origen, int cuenta_destino, float monto)
+void transferir_dinero(const char* cuenta_origen, const char* cuenta_destino, float monto)
 {
     db_transferir_dinero(cuenta_origen, cuenta_destino, monto);
 }
 
-void cerrar_cuenta(int numero_cuenta)
+void cerrar_cuenta(const char* numero_cuenta)
 {
     db_cerrar_cuenta(numero_cuenta);
 }
 
-CuentaBancaria *buscar_cuenta_por_numero(int numero_cuenta)
+CuentaBancaria *buscar_cuenta_por_numero(const char *numero_cuenta)
 {
     return db_buscar_cuenta_por_numero(numero_cuenta);
 }
+

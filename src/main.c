@@ -59,7 +59,14 @@ void pantalla_inicio()
                     Cliente *cli = db_buscar_cliente_por_usuario_id(usuario->usuarioID);
                     if (cli != NULL)
                     {
-                        menu_cliente(cli);
+                        if (cliente_tiene_cuenta(cli->clienteID))
+                        {
+                            menu_cliente_con_cuenta(cli, usuario);
+                        }
+                        else
+                        {
+                            menu_cliente_sin_cuenta(cli);
+                        }
                         free(cli);
                     }
                     else
@@ -83,6 +90,7 @@ void pantalla_inicio()
         }
     } while (opcion != 3);
 }
+
 
 void registro_usuario()
 {
@@ -192,58 +200,21 @@ void menu_administrador()
     } while (opcion != 4);
 }
 
-void menu_cliente(Cliente *cliente)
-{
-    CuentaBancaria *cuenta = db_buscar_cuenta_por_cliente(cliente->clienteID);
-    int opcion;
-    do
-    {
-        printf("Bienvenido, %s %s\n", cliente->nombre, cliente->apellido);
-        
 
-        if (cuenta == NULL)
-        {
-            printf("1. Abrir cuenta\n");
-            printf("2. Ver informacion del cliente\n");
-            printf("3. Cerrar sesion\n");
-            printf("Seleccione una opcion: ");
-            scanf("%d", &opcion);
 
-            switch (opcion)
-            {
-            case 1:
-                //temporizador_crear_cuenta();
-                cuenta = crear_cuenta(cliente);
-                break;
-            case 2:
-                mostrar_info_cliente(cliente);
-                break;
-            case 3:
-                printf("Sesion cerrada.\n");
-                break;
-            default:
-                printf("Opcion no válida. Intente de nuevo.\n");
-                break;
-            }
-        }
-        else
-        {
-            menu_cliente_con_cuenta(cliente);
-        }
-        if (cuenta != NULL)
-        {
-            free(cuenta);
-        }
 
-    } while (opcion != 3 && (cuenta == NULL || opcion != 7));
-}
-/* void menu_gestionar_clientes()
+
+
+
+
+/*
+void menu_gestionar_clientes()
 {
     int opcion;
 
     do {
         system("cls");
-        printf("1. Registrar cliente\n");
+        printf("1. Mostrar lista de clientes");
         printf("2. Actualizar cliente\n");
         printf("3. Eliminar cliente\n");
         printf("4. Salir\n");
@@ -253,13 +224,35 @@ void menu_cliente(Cliente *cliente)
 
         switch (opcion) {
             case 1:
-                // Codigo para registrar un cliente
+                system("cls");
+                int tamanyo=get_numero_filas_cliente("SELECT * FROM Cliente");
+                Cliente ** listaClientes= malloc(sizeof(Cliente*));
+                for (int i=0; i<tamanyo;i++){
+                    printf("Cliente %i- %s %s\n", listaClientes[i].id, listaClientes[i].nombre, listaClientes[i].apellido);
+                }
+                free(listaClientes);
                 break;
             case 2:
-                db_actualizar_cliente(int id_cliente, Cliente *datos_actualizados, Usuario *usuario_actualizado);
+                Cliente nuevo_cliente;
+                printf("Introduzca el id de cliente que quiera actualizar sus datos:\n")
+                scanf("%d", nuevo_cliente.id);
+                printf("Introduzca los datos actualizados del cliente:\n")
+                printf("Nombre: ");
+                scanf("%s", nuevo_cliente.nombre);
+                printf("Apellido: ");
+                scanf("%s", nuevo_cliente.apellido);
+                printf("DNI: ");
+                scanf("%s", nuevo_cliente.dni);
+                printf("Direccion: ");
+                scanf("%s", nuevo_cliente.direccion);
+                printf("Telefono: ");
+                scanf("%s", nuevo_cliente.telefono);
+                db_actualizar_cliente(, Cliente *datos_actualizados, Usuario *usuario_actualizado);
                 break;
             case 3:
-                // Codigo para eliminar un cliente
+                Cliente cliente_a_eliminar;
+                printf("Introduzca el id del cliente que quiere eliminar: \n");
+                scanf("%i", cliente_a_eliminar.id)
                 break;
             case 4:
                 printf("Gracias por utilizar nuestro servicio.\n");

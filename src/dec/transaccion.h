@@ -4,8 +4,8 @@
 #include "../struct.h"
 
 void registrar_transaccion(Transaccion* transaccion);
-Transaccion* listar_transacciones(int numero_cuenta);
+Transaccion* listar_transacciones(const char* numero_cuenta, int *num_transacciones);
 void eliminar_transaccion(int id_transaccion);
-Informe* mostrar_informe_financiero(int numero_cuenta);
+Informe *mostrar_informe_financiero(const char* numero_cuenta);
 
 #endif // TRANSACCION_H
