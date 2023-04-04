@@ -17,6 +17,8 @@ void generar_numero_cuenta(char *numero_cuenta) {
 
 void crear_cuenta(int clienteID) {
     char numero_cuenta[27];
+    char* codigoBIC = malloc(sizeof(char)*12);
+    codigoBIC = "DBANKSPAINSS";
     generar_numero_cuenta(numero_cuenta);
 
     sqlite3 *db;
@@ -28,12 +30,15 @@ void crear_cuenta(int clienteID) {
         return;
     }
 
-    const char *sql = "INSERT INTO cuentas (numeroCuenta, saldo, clienteID) VALUES (?, 0, ?);";
+    const char *sql = "INSERT INTO cuentas (numeroCuenta, saldo, clienteID, codigoBIC) VALUES (?, 0, ?, ?);";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     if (rc == SQLITE_OK) {
         sqlite3_bind_text(stmt, 1, numero_cuenta, -1, SQLITE_STATIC);
         sqlite3_bind_int(stmt, 2, clienteID);
+        sqlite3_bind_text(stmt, 3, codigoBIC, -1, SQLITE_STATIC);
+
+        rc = sqlite3_step(stmt);      
 
         rc = sqlite3_step(stmt);
         if (rc != SQLITE_DONE) {
@@ -45,7 +50,7 @@ void crear_cuenta(int clienteID) {
     } else {
         fprintf(stderr, "Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
     }
-
+    free(codigoBIC);
     sqlite3_finalize(stmt);
     cerrar_db(db);
 }

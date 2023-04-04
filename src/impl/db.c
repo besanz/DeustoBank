@@ -69,10 +69,12 @@ void db_inicializar()
 
     // Crear la tabla de cuentas si no existe
     const char *sql_cuentas = "CREATE TABLE IF NOT EXISTS cuentas ("
-                              "numeroCuenta TEXT PRIMARY KEY,"
-                              "saldo REAL NOT NULL,"
-                              "clienteID INTEGER NOT NULL,"
-                              "FOREIGN KEY (clienteID) REFERENCES clientes (id));";
+                            "numeroCuenta TEXT PRIMARY KEY,"
+                            "saldo REAL NOT NULL,"
+                            "clienteID INTEGER NOT NULL,"
+                            "codigoBIC TEXT NOT NULL,"
+                            "FOREIGN KEY (clienteID) REFERENCES clientes (id));";
+
 
     rc = sqlite3_exec(db, sql_cuentas, 0, 0, &zErrMsg);
     if (rc != SQLITE_OK)
@@ -88,7 +90,7 @@ void db_inicializar()
                                     "numeroCuentaDestino TEXT NOT NULL,"
                                     "importe REAL NOT NULL,"
                                     "fecha INTEGER NOT NULL,"
-                                    "tipo INTEGER NOT NULL," // Agrega esta línea
+                                    "tipo INTEGER NOT NULL," // Agrega esta linea
                                     "FOREIGN KEY (numeroCuentaOrigen) REFERENCES cuentas (numeroCuenta),"
                                     "FOREIGN KEY (numeroCuentaDestino) REFERENCES cuentas (numeroCuenta));";
 
@@ -146,7 +148,7 @@ void db_registrar_cliente(Cliente *nuevo_cliente, Usuario *nuevo_usuario)
     cerrar_db(db);
 }
 
-void db_actualizar_cliente(int id_cliente, Cliente *datos_actualizados, Usuario *usuario_actualizado)
+void db_actualizar_cliente(int clienteID, Cliente *datos_actualizados, Usuario *usuario_actualizado)
 {
     sqlite3 *db;
     char *zErrMsg = 0;
@@ -162,7 +164,7 @@ void db_actualizar_cliente(int id_cliente, Cliente *datos_actualizados, Usuario 
     }
 
     snprintf(sql, sizeof(sql), "UPDATE clientes SET nombre = '%s', apellido = '%s', dni = '%s', direccion = '%s', telefono = '%s' WHERE id = %d;",
-             datos_actualizados->nombre, datos_actualizados->apellido, datos_actualizados->dni, datos_actualizados->direccion, datos_actualizados->telefono, id_cliente);
+             datos_actualizados->nombre, datos_actualizados->apellido, datos_actualizados->dni, datos_actualizados->direccion, datos_actualizados->telefono, clienteID);
 
     rc = sqlite3_exec(db, sql, 0, 0, &zErrMsg);
 
@@ -187,7 +189,7 @@ void db_actualizar_cliente(int id_cliente, Cliente *datos_actualizados, Usuario 
     cerrar_db(db);
 }
 
-void db_eliminar_cliente(int id_cliente)
+void db_eliminar_cliente(int clienteID)
 {
     sqlite3 *db;
     char *zErrMsg = 0;
@@ -202,7 +204,7 @@ void db_eliminar_cliente(int id_cliente)
         return;
     }
 
-    snprintf(sql, sizeof(sql), "DELETE FROM clientes WHERE id = %d;", id_cliente);
+    snprintf(sql, sizeof(sql), "DELETE FROM clientes WHERE id = %d;", clienteID);
 
     rc = sqlite3_exec(db, sql, 0, 0, &zErrMsg);
 
@@ -213,7 +215,7 @@ void db_eliminar_cliente(int id_cliente)
     }
     else
     {
-        snprintf(sql, sizeof(sql), "DELETE FROM usuarios WHERE usuarioID = (SELECT usuarioID FROM clientes WHERE id = %d);", id_cliente);
+        snprintf(sql, sizeof(sql), "DELETE FROM usuarios WHERE usuarioID = (SELECT usuarioID FROM clientes WHERE id = %d);", clienteID);
 
         rc = sqlite3_exec(db, sql, 0, 0, &zErrMsg);
         if (rc != SQLITE_OK)
@@ -226,7 +228,7 @@ void db_eliminar_cliente(int id_cliente)
     cerrar_db(db);
 }
 
-Cliente *db_buscar_cliente_por_id(int id_cliente)
+Cliente *db_buscar_cliente_por_id(int clienteID)
 {
     sqlite3 *db;
     if (abrir_db(&db) != 0)
@@ -240,7 +242,7 @@ Cliente *db_buscar_cliente_por_id(int id_cliente)
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK)
     {
-        sqlite3_bind_int(stmt, 1, id_cliente);
+        sqlite3_bind_int(stmt, 1, clienteID);
 
         if (sqlite3_step(stmt) == SQLITE_ROW)
         {
@@ -260,7 +262,6 @@ Cliente *db_buscar_cliente_por_id(int id_cliente)
 }
 
 Cliente *db_buscar_cliente_por_usuarioID(int usuarioID)
-
 {
     sqlite3 *db;
     sqlite3_stmt *stmt;
@@ -346,10 +347,15 @@ int db_obtener_usuarioID(const char *nombreUsuario)
     if (rc == SQLITE_ROW)
     {
         usuarioID = sqlite3_column_int(stmt, 0);
+        printf("Usuario encontrado con ID: %d\n", usuarioID); // Agregue esta línea
     }
     else if (rc != SQLITE_DONE)
     {
         fprintf(stderr, "Error al ejecutar la consulta: %s\n", sqlite3_errmsg(db));
+    }
+    else
+    {
+        printf("No se encontró ningún registro para el usuario: %s\n", nombreUsuario); // Agregue esta línea
     }
 
     // Finalizar el statement y cerrar la base de datos
@@ -509,7 +515,7 @@ void db_depositar_dinero(const char *numero_cuenta, float cantidad)
     }
     sqlite3_finalize(stmt);
 
-    // Registra la transacción de depósito en la base de datos
+    // Registra la transaccion de deposito en la base de datos
     time_t fecha = time(NULL);
     db_agregar_transaccion(numero_cuenta, numero_cuenta, cantidad, fecha, DEPOSITO);
 
@@ -543,7 +549,13 @@ void db_transferir_dinero(const char *cuenta_origen, const char *cuenta_destino,
 {
     db_retirar_dinero(cuenta_origen, cantidad);
     db_depositar_dinero(cuenta_destino, cantidad);
+
+    // Registrar las transacciones de retiro y depósito en la base de datos
+    time_t fecha = time(NULL);
+    db_agregar_transaccion(cuenta_origen, cuenta_destino, cantidad, fecha, RETIRADA);
+    db_agregar_transaccion(cuenta_origen, cuenta_destino, cantidad, fecha, DEPOSITO);
 }
+
 
 void db_cerrar_cuenta(const char *numero_cuenta)
 {
@@ -666,7 +678,9 @@ CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID)
         return NULL;
     }
 
-    const char *sql = "SELECT cb.*, c.* FROM cuentas cb INNER JOIN clientes c ON c.clienteID = cb.clienteID WHERE cb.clienteID = ?";
+    const char *sql =   "SELECT cb.numeroCuenta, cb.saldo, cb.clienteID, cb.codigoBIC, "
+                        "c.nombre, c.apellido, c.dni, c.direccion, c.telefono "
+                        "FROM cuentas cb INNER JOIN clientes c ON c.clienteID = cb.clienteID WHERE cb.clienteID = ?";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
@@ -699,48 +713,43 @@ CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID)
     return cuenta;
 }
 
-int db_agregar_transaccion(const char *numeroCuentaOrigen, const char *numeroCuentaDestino, float importe, time_t fecha, TipoTransaccion tipo)
+void db_agregar_transaccion(const char *numeroCuentaOrigen, const char *numeroCuentaDestino, float importe, time_t fecha, TipoTransaccion tipo)
 {
     sqlite3 *db;
     sqlite3_stmt *stmt;
     int rc;
+    char sql[500];
 
-    rc = sqlite3_open("deustobank.db", &db);
-    if (rc != SQLITE_OK)
+    rc = abrir_db(&db);
+    if (rc)
     {
         printf("No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
-        return -1;
+        return;
     }
 
-    const char *sql = "INSERT INTO transacciones (numeroCuentaOrigen, numeroCuentaDestino, importe, fecha, tipo) VALUES (?, ?, ?, ?, ?);";
-    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    snprintf(sql, sizeof(sql), "INSERT INTO transacciones (numeroCuentaOrigen, numeroCuentaDestino, importe, fecha, tipo) VALUES (?, ?, ?, ?, ?);");
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     if (rc != SQLITE_OK)
     {
-        printf("Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
-        sqlite3_close(db);
-        return -1;
+        printf("No se puede preparar la consulta: %s\n", sqlite3_errmsg(db));
+        return;
     }
 
     sqlite3_bind_text(stmt, 1, numeroCuentaOrigen, -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, numeroCuentaDestino, -1, SQLITE_TRANSIENT);
     sqlite3_bind_double(stmt, 3, importe);
     sqlite3_bind_int64(stmt, 4, fecha);
-    sqlite3_bind_int(stmt, 5, tipo); // Asegúrate de agregar este campo
+    sqlite3_bind_int(stmt, 5, tipo);
 
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE)
     {
-        printf("Error al insertar la transacción: %s\n", sqlite3_errmsg(db));
-        sqlite3_finalize(stmt);
-        sqlite3_close(db);
-        return -1;
+        printf("Error al insertar la transaccion: %s\n", sqlite3_errmsg(db));
     }
 
-    int transaccion_id = (int)sqlite3_last_insert_rowid(db);
     sqlite3_finalize(stmt);
-    sqlite3_close(db);
-
-    return transaccion_id;
+    cerrar_db(db);
 }
 
 void db_registrar_transaccion(Transaccion *transaccion)
@@ -761,7 +770,7 @@ void db_registrar_transaccion(Transaccion *transaccion)
 
     if (rc != SQLITE_OK)
     {
-        printf("Error al preparar la declaración: %s\n", sqlite3_errmsg(db));
+        printf("Error al preparar la declaracion: %s\n", sqlite3_errmsg(db));
         return;
     }
 
@@ -776,14 +785,14 @@ void db_registrar_transaccion(Transaccion *transaccion)
     // Pasar fecha_str como argumento a sqlite3_bind_text en lugar de transaccion->fecha
     sqlite3_bind_text(stmt, 4, fecha_str, -1, SQLITE_TRANSIENT);
     
-    // Vincular el valor del tipo de transacción
+    // Vincular el valor del tipo de transaccion
     sqlite3_bind_int(stmt, 5, transaccion->tipo);
 
     rc = sqlite3_step(stmt);
 
     if (rc != SQLITE_DONE)
     {
-        printf("Error al ejecutar la declaración: %s\n", sqlite3_errmsg(db));
+        printf("Error al ejecutar la declaracion: %s\n", sqlite3_errmsg(db));
         return;
     }
 

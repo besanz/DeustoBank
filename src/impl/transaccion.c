@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <time.h>
 #include "../dec/transaccion.h"
 #include "../dec/db.h"
@@ -27,63 +28,66 @@ Informe *mostrar_informe_financiero(const char* numero_cuenta) {
 }
 
 void realizar_transferencia(int cliente_id_origen) {
-    // char usuario_destino[50];
-    // float cantidad;
-    // Cliente *cliente_destino;
-    // Cliente *cliente_origen;
-    // CuentaBancaria *cuenta_bancaria_origen;
-    // CuentaBancaria *cuenta_bancaria_destino;
-    // char confirmacion;
+    char usuario_destino[50];
+    float cantidad;
+    Cliente *cliente_destino;
+    Cliente *cliente_origen;
+    CuentaBancaria *cuenta_bancaria_origen;
+    CuentaBancaria *cuenta_bancaria_destino;
+    char confirmacion;
 
-    // printf("Introduce el nombre de usuario destino: ");
-    // scanf("%s", usuario_destino);
+    printf("Introduce el nombre de usuario destino: ");
+    scanf("%s", usuario_destino);
+    int idUser = db_obtener_usuarioID(usuario_destino);
+    printf("%d imprime", idUser);
 
-    // cliente_destino = db_buscar_cliente_por_usuario(usuario_destino);
-    // if (cliente_destino == NULL) {
-    //     printf("Usuario destino no encontrado.\n");
-    //     return;
-    // }
+    cliente_destino = db_buscar_cliente_por_usuarioID(idUser);
 
-    // cliente_origen = db_buscar_cliente_por_id(cliente_id_origen);
+    if (cliente_destino == NULL) {
+        printf("Usuario destino no encontrado.\n");
+        return;
+    }
 
-    // cuenta_bancaria_origen = db_buscar_cuenta_por_cliente(cliente_origen->clienteID);
-    // cuenta_bancaria_destino = db_buscar_cuenta_por_cliente(cliente_destino->clienteID);
+    cliente_origen = db_buscar_cliente_por_id(cliente_id_origen);
 
-    // if (cuenta_bancaria_origen == NULL || cuenta_bancaria_destino == NULL) {
-    //     printf("Error al obtener cuentas bancarias.\n");
-    //     return;
-    // }
+    cuenta_bancaria_origen = db_buscar_cuenta_por_cliente(cliente_origen->clienteID);
+    cuenta_bancaria_destino = db_buscar_cuenta_por_cliente(cliente_destino->clienteID);
 
-    // printf("Introduce la cantidad a transferir: ");
-    // scanf("%f", &cantidad);
+    if (cuenta_bancaria_origen == NULL || cuenta_bancaria_destino == NULL) {
+        printf("Error al obtener cuentas bancarias.\n");
+        return;
+    }
 
-    // if (cantidad <= 0 || cantidad > cuenta_bancaria_origen->saldo) {
-    //     printf("Cantidad inválida. La transferencia no puede realizarse.\n");
-    //     return;
-    // }
+    printf("Introduce la cantidad a transferir: ");
+    scanf("%f", &cantidad);
 
-    // printf("Información de las cuentas:\n\n");
-    // printf("Cuenta origen:\n");
-    // printf("Nombre: %s %s\n", cliente_origen->nombre, cliente_origen->apellido);
-    // printf("Número de cuenta: %s\n", cuenta_bancaria_origen->numeroCuenta);
+    if (cantidad <= 0 || cantidad > cuenta_bancaria_origen->saldo) {
+        printf("Cantidad invalida. La transferencia no puede realizarse.\n");
+        return;
+    }
 
-    // printf("\nCuenta destino:\n");
-    // printf("Nombre: %s %s\n", cliente_destino->nombre, cliente_destino->apellido);
-    // printf("Número de cuenta: %s\n", cuenta_bancaria_destino->numeroCuenta);
+    printf("Informacion de las cuentas:\n\n");
+    printf("Cuenta origen:\n");
+    printf("Nombre: %s %s\n", cliente_origen->nombre, cliente_origen->apellido);
+    printf("Numero de cuenta: %s\n", cuenta_bancaria_origen->numeroCuenta);
 
-    // printf("\nCantidad a transferir: %.2f\n", cantidad);
+    printf("\nCuenta destino:\n");
+    printf("Nombre: %s %s\n", cliente_destino->nombre, cliente_destino->apellido);
+    printf("Numero de cuenta: %s\n", cuenta_bancaria_destino->numeroCuenta);
 
-    // printf("¿Desea confirmar la transferencia? (S/N): ");
-    // scanf(" %c", &confirmacion);
+    printf("\nCantidad a transferir: %.2f\n", cantidad);
 
-    // if (toupper(confirmacion) != 'S') {
-    //     printf("Transferencia cancelada.\n");
-    //     return;
-    // }
+    printf("¿Desea confirmar la transferencia? (S/N): ");
+    scanf(" %c", &confirmacion);
 
-    // db_transferir_dinero(cuenta_bancaria_origen->numeroCuenta, cuenta_bancaria_destino->numeroCuenta, cantidad);
+    if (toupper(confirmacion) != 'S') {
+        printf("Transferencia cancelada.\n");
+        return;
+    }
 
-    // printf("Transferencia realizada con éxito.\n");
+    db_transferir_dinero(cuenta_bancaria_origen->numeroCuenta, cuenta_bancaria_destino->numeroCuenta, cantidad);
+
+    printf("Transferencia realizada con exito.\n");
 }
 
 

@@ -171,7 +171,7 @@ void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario)
 void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
 {
     int opcion;
-    CuentaBancaria *cuenta = NULL;
+    CuentaBancaria *cuenta;
     int num_transacciones;
     Transaccion *transacciones;
     Informe *informe;
@@ -209,11 +209,7 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
             retirar_dinero(cuenta->numeroCuenta, cantidad);
             break;
         case 4:
-            printf("Introduzca el numero de cuenta destino: ");
-            scanf("%s", numeroCuentaDestino);
-            printf("Introduzca la cantidad que desea transferir: ");
-            scanf("%f", &cantidad);
-            transferir_dinero(cuenta->numeroCuenta, numeroCuentaDestino, cantidad);
+            realizar_transferencia(cliente->clienteID);
             break;
         case 5:
             transacciones = listar_transacciones(cuenta->numeroCuenta, &num_transacciones);
@@ -244,8 +240,8 @@ void mostrar_informacion_cliente(Cliente *cliente)
     printf("ID del cliente: %d\n", cliente->clienteID);
     printf("Nombre: %s %s\n", cliente->nombre, cliente->apellido);
     printf("DNI: %s\n", cliente->dni);
-    printf("Dirección: %s\n", cliente->direccion);
-    printf("Teléfono: %s\n", cliente->telefono);
+    printf("Direccion: %s\n", cliente->direccion);
+    printf("Telefono: %s\n", cliente->telefono);
 }
 
 CuentaBancaria *obtener_cuenta_por_clienteID(int clienteID)
@@ -293,15 +289,15 @@ void imprimir_informe(Informe *informe)
         return;
     }
 
-    printf("Número de cuenta: %s\n", informe->numeroCuenta);
+    printf("Numero de cuenta: %s\n", informe->numeroCuenta);
     printf("Saldo inicial: %.2f\n", informe->saldoInicial);
     printf("Saldo final: %.2f\n", informe->saldoFinal);
-    printf("Número de depósitos: %d\n", informe->numDepositos);
-    printf("Total depósitos: %.2f\n", informe->totalDepositos);
-    printf("Número de retiros: %d\n", informe->numRetiros);
+    printf("Numero de depositos: %d\n", informe->numDepositos);
+    printf("Total depositos: %.2f\n", informe->totalDepositos);
+    printf("Numero de retiros: %d\n", informe->numRetiros);
     printf("Total retiros: %.2f\n", informe->totalRetiros);
-    printf("Número de transferencias enviadas: %d\n", informe->numTransferenciasEnviadas);
+    printf("Numero de transferencias enviadas: %d\n", informe->numTransferenciasEnviadas);
     printf("Total transferencias enviadas: %.2f\n", informe->totalTransferenciasEnviadas);
-    printf("Número de transferencias recibidas: %d\n", informe->numTransferenciasRecibidas);
+    printf("Numero de transferencias recibidas: %d\n", informe->numTransferenciasRecibidas);
     printf("Total transferencias recibidas: %.2f\n", informe->totalTransferenciasRecibidas);
 }

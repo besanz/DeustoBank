@@ -7,5 +7,6 @@ void registrar_transaccion(Transaccion* transaccion);
 Transaccion* listar_transacciones(const char* numero_cuenta, int *num_transacciones);
 void eliminar_transaccion(int id_transaccion);
 Informe *mostrar_informe_financiero(const char* numero_cuenta);
+void realizar_transferencia(int cliente_id_origen);
 
 #endif // TRANSACCION_H
