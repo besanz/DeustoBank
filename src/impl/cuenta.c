@@ -98,19 +98,19 @@ void mostrar_informacion_cuenta(const char *numero_cuenta)
     }
 }
 
-void depositar_dinero(const char * numero_cuenta, float monto)
+void depositar_dinero(const char * numero_cuenta, float cantidad)
 {
-    db_depositar_dinero(numero_cuenta, monto);
+    db_depositar_dinero(numero_cuenta, cantidad);
 }
 
-void retirar_dinero(const char* numero_cuenta, float monto)
+void retirar_dinero(const char* numero_cuenta, float cantidad)
 {
-    db_retirar_dinero(numero_cuenta, monto);
+    db_retirar_dinero(numero_cuenta, cantidad);
 }
 
-void transferir_dinero(const char* cuenta_origen, const char* cuenta_destino, float monto)
+void transferir_dinero(const char* cuenta_origen, const char* cuenta_destino, float cantidad)
 {
-    db_transferir_dinero(cuenta_origen, cuenta_destino, monto);
+    db_transferir_dinero(cuenta_origen, cuenta_destino, cantidad);
 }
 
 void cerrar_cuenta(const char* numero_cuenta)

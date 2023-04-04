@@ -10,9 +10,16 @@
 
 // Enumeracion para los tipos de usuarios
 typedef enum {
-    ADMINISTRADOR,
-    CLIENTE
+    CLIENTE,
+    ADMINISTRADOR
 } TipoUsuario;
+
+// Enumeracion para los tipos de usuarios
+typedef enum {
+    DEPOSITO,
+    TRANSFERENCIA,
+    RETIRADA
+} TipoTransaccion;
 
 // Estructura de datos para un usuario generico
 typedef struct {
@@ -26,7 +33,7 @@ typedef struct {
 // Estructura de datos para un cliente bancario
 typedef struct {
     int clienteID;
-    int usuario_id;
+    int usuarioID;
     char nombre[50];
     char apellido[50];
     char dni[20];
@@ -50,6 +57,7 @@ typedef struct {
     char numeroCuentaDestino[20];
     float importe;
     time_t fecha;
+    TipoTransaccion tipo;
 } Transaccion;
 
 // Estructura de datos para un informe financiero

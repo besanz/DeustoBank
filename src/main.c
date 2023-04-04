@@ -32,10 +32,11 @@ int main()
 void pantalla_inicio()
 {
     int opcion;
+    Usuario *usuario;
+    Cliente *cliente;
 
     do
     {
-        ////temporizador_pantalla_inicial();
         printf("\nBienvenido a DeustoBank\n");
         printf("1. Iniciar sesion\n");
         printf("2. Registrarse\n");
@@ -46,28 +47,27 @@ void pantalla_inicio()
         switch (opcion)
         {
         case 1:
-        {
-            Usuario *usuario = inicio_sesion_usuario();
+            usuario = inicio_sesion_usuario();
             if (usuario != NULL)
             {
-                if (usuario->tipo == ADMINISTRADOR)
+                if (usuario->tipo == 1)
                 {
                     menu_administrador();
                 }
                 else
                 {
-                    Cliente *cli = db_buscar_cliente_por_usuario_id(usuario->usuarioID);
-                    if (cli != NULL)
+                    cliente = db_buscar_cliente_por_usuarioID(usuario->usuarioID);
+                    if (cliente != NULL)
                     {
-                        if (cliente_tiene_cuenta(cli->clienteID))
+                        if (cliente_tiene_cuenta(cliente->clienteID))
                         {
-                            menu_cliente_con_cuenta(cli, usuario);
+                            menu_cliente_con_cuenta(cliente, usuario);
                         }
                         else
                         {
-                            menu_cliente_sin_cuenta(cli);
+                            menu_cliente_sin_cuenta(cliente, usuario);
                         }
-                        free(cli);
+                        free(cliente);
                     }
                     else
                     {
@@ -77,12 +77,10 @@ void pantalla_inicio()
                 free(usuario);
             }
             break;
-        }
         case 2:
             registro_usuario();
             break;
         case 3:
-            // temporizador_salida();
             break;
         default:
             printf("Opcion invalida. Por favor, intente de nuevo.\n");
@@ -90,6 +88,8 @@ void pantalla_inicio()
         }
     } while (opcion != 3);
 }
+
+
 
 
 void registro_usuario()
@@ -122,7 +122,7 @@ void registro_usuario()
 
     // Registrar el nuevo usuario y obtener el ID de usuario generado
     db_registrar_usuario(&nuevo_usuario);
-    nuevo_cliente.usuario_id = db_obtener_usuario_id(nuevo_usuario.nombreUsuario);
+    nuevo_cliente.usuarioID = db_obtener_usuarioID(nuevo_usuario.nombreUsuario);
     ////temporizador_registro_usuario();
     // Pase el nuevo_usuario como argumento adicional
     db_registrar_cliente(&nuevo_cliente, &nuevo_usuario);
@@ -143,7 +143,7 @@ Usuario *inicio_sesion_usuario()
     Cliente *cliente = NULL;
     if (usuario != NULL)
     {
-        cliente = db_buscar_cliente_por_usuario_id(usuario->usuarioID);
+        cliente = db_buscar_cliente_por_usuarioID(usuario->usuarioID);
     }
 
     if (cliente != NULL)

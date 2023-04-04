@@ -71,7 +71,7 @@ void mostrar_transacciones(Transaccion *transacciones, int num_transacciones)
         printf("  ID: %d\n", transacciones[i].transaccionID);
         printf("  Cuenta Origen: %d\n", transacciones[i].numeroCuentaOrigen);
         printf("  Cuenta Destino: %d\n", transacciones[i].numeroCuentaDestino);
-        printf("  Monto: %.2f\n", transacciones[i].importe);
+        printf("  Cantidad: %.2f\n", transacciones[i].importe);
         printf("  Fecha: %s\n", ctime(&transacciones[i].fecha)); // Convertir time_t a string legible
     }
 }
@@ -127,9 +127,10 @@ int cliente_tiene_cuenta(int clienteID)
     return cuenta_encontrada;
 }
 
-void menu_cliente_sin_cuenta(Cliente *cliente)
+void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario)
 {
     int opcion;
+    char contrasena[100];
 
     do
     {
@@ -143,7 +144,17 @@ void menu_cliente_sin_cuenta(Cliente *cliente)
         switch (opcion)
         {
         case 1:
-            crear_cuenta(cliente->clienteID);
+            printf("Por favor, verifica tu contrasena: ");
+            scanf("%s", contrasena);
+            if (strcmp(contrasena, usuario->contrasena) == 0)
+            {
+                crear_cuenta(cliente->clienteID);
+                menu_cliente_con_cuenta(cliente, usuario);
+            }
+            else
+            {
+                printf("Contrasena incorrecta. Intenta de nuevo.\n");
+            }
             break;
         case 2:
             mostrar_informacion_cliente(cliente);
@@ -164,18 +175,7 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
     int num_transacciones;
     Transaccion *transacciones;
     Informe *informe;
-
-    // Crear una cuenta de banco automaticamente si no tiene una
-    if (!cliente_tiene_cuenta(cliente->clienteID))
-    {
-        crear_cuenta(cliente->clienteID);
-        cuenta = obtener_cuenta_por_clienteID(cliente->clienteID);
-        printf("Se ha creado una cuenta bancaria para ti automaticamente.\n");
-    }
-    else
-    {
-        cuenta = obtener_cuenta_por_clienteID(cliente->clienteID);
-    }
+    cuenta = obtener_cuenta_por_clienteID(cliente->clienteID);
 
     while (1)
     {
@@ -190,8 +190,8 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
         printf("\nSeleccione una opcion: ");
         scanf("%d", &opcion);
 
-        float monto;
-        char numero_cuenta_destino[27];
+        float cantidad;
+        char numeroCuentaDestino[27];
 
         switch (opcion)
         {
@@ -199,21 +199,21 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
             mostrar_informacion_cuenta(cuenta->numeroCuenta);
             break;
         case 2:
-            printf("Introduzca el monto que desea depositar: ");
-            scanf("%f", &monto);
-            depositar_dinero(cuenta->numeroCuenta, monto);
+            printf("Introduzca la cantidad que desea depositar: ");
+            scanf("%f", &cantidad);
+            depositar_dinero(cuenta->numeroCuenta, cantidad);
             break;
         case 3:
-            printf("Introduzca el monto que desea retirar: ");
-            scanf("%f", &monto);
-            retirar_dinero(cuenta->numeroCuenta, monto);
+            printf("Introduzca la cantidad que desea retirar: ");
+            scanf("%f", &cantidad);
+            retirar_dinero(cuenta->numeroCuenta, cantidad);
             break;
         case 4:
             printf("Introduzca el numero de cuenta destino: ");
-            scanf("%s", numero_cuenta_destino);
-            printf("Introduzca el monto que desea transferir: ");
-            scanf("%f", &monto);
-            transferir_dinero(cuenta->numeroCuenta, numero_cuenta_destino, monto);
+            scanf("%s", numeroCuentaDestino);
+            printf("Introduzca la cantidad que desea transferir: ");
+            scanf("%f", &cantidad);
+            transferir_dinero(cuenta->numeroCuenta, numeroCuentaDestino, cantidad);
             break;
         case 5:
             transacciones = listar_transacciones(cuenta->numeroCuenta, &num_transacciones);
@@ -233,14 +233,75 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
     }
 }
 
-void mostrar_informacion_cliente(Cliente *cliente) {
-    // Implementa la lógica para mostrar la información del cliente
+void mostrar_informacion_cliente(Cliente *cliente)
+{
+    if (cliente == NULL)
+    {
+        printf("Cliente no encontrado.\n");
+        return;
+    }
+
+    printf("ID del cliente: %d\n", cliente->clienteID);
+    printf("Nombre: %s %s\n", cliente->nombre, cliente->apellido);
+    printf("DNI: %s\n", cliente->dni);
+    printf("Dirección: %s\n", cliente->direccion);
+    printf("Teléfono: %s\n", cliente->telefono);
 }
 
-CuentaBancaria *obtener_cuenta_por_clienteID(int clienteID) {
-    // Implementa la lógica para obtener la cuenta bancaria por clienteID
+CuentaBancaria *obtener_cuenta_por_clienteID(int clienteID)
+{
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    CuentaBancaria *cuenta = NULL;
+
+    if (abrir_db(&db) != SQLITE_OK)
+    {
+        printf("Error al abrir la base de datos.\n");
+        return NULL;
+    }
+
+    const char *sql = "SELECT * FROM cuentas WHERE clienteID = ?";
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
+    {
+        printf("Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
+        cerrar_db(db);
+        return NULL;
+    }
+
+    sqlite3_bind_int(stmt, 1, clienteID);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        cuenta = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
+        strncpy(cuenta->numeroCuenta, (const char *)sqlite3_column_text(stmt, 0), sizeof(cuenta->numeroCuenta));
+        cuenta->saldo = (float)sqlite3_column_double(stmt, 1);
+        cuenta->cliente = buscar_cliente_por_id(sqlite3_column_int(stmt, 2));
+        strncpy(cuenta->codigoBIC, (const char *)sqlite3_column_text(stmt, 3), sizeof(cuenta->codigoBIC));
+    }
+
+    sqlite3_finalize(stmt);
+    cerrar_db(db);
+    return cuenta;
 }
 
-void imprimir_informe(Informe *informe) {
-    // Implementa la lógica para imprimir el informe financiero
+void imprimir_informe(Informe *informe)
+{
+    if (informe == NULL)
+    {
+        printf("Informe no encontrado.\n");
+        return;
+    }
+
+    printf("Número de cuenta: %s\n", informe->numeroCuenta);
+    printf("Saldo inicial: %.2f\n", informe->saldoInicial);
+    printf("Saldo final: %.2f\n", informe->saldoFinal);
+    printf("Número de depósitos: %d\n", informe->numDepositos);
+    printf("Total depósitos: %.2f\n", informe->totalDepositos);
+    printf("Número de retiros: %d\n", informe->numRetiros);
+    printf("Total retiros: %.2f\n", informe->totalRetiros);
+    printf("Número de transferencias enviadas: %d\n", informe->numTransferenciasEnviadas);
+    printf("Total transferencias enviadas: %.2f\n", informe->totalTransferenciasEnviadas);
+    printf("Número de transferencias recibidas: %d\n", informe->numTransferenciasRecibidas);
+    printf("Total transferencias recibidas: %.2f\n", informe->totalTransferenciasRecibidas);
 }

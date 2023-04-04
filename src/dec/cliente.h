@@ -15,7 +15,8 @@ void mostrar_info_cliente(Cliente *cliente);
 void mostrar_transacciones(Transaccion *transacciones, int num_transacciones);
 void mostrar_informe(Informe *informe);
 int cliente_tiene_cuenta(int clienteID);
-void menu_cliente_sin_cuenta(Cliente *cliente);
+
+void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario);
 void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario);
 
 void mostrar_informacion_cliente(Cliente *cliente);

@@ -12,21 +12,21 @@ void db_registrar_cliente(Cliente *nuevo_cliente, Usuario *nuevo_usuario);
 void db_actualizar_cliente(int id_cliente, Cliente *datos_actualizados, Usuario *usuario_actualizado);
 void db_eliminar_cliente(int id_cliente);
 Cliente *db_buscar_cliente_por_id(int id_cliente);
-Cliente *db_buscar_cliente_por_usuario_id(int id_cliente);
-int db_obtener_usuario_id(const char *nombreUsuario);
+Cliente *db_buscar_cliente_por_usuarioID(int id_cliente);
+int db_obtener_usuarioID(const char *nombreUsuario);
 Usuario *db_validar_credenciales(const char *usuario, const char *contrasena);
 void db_registrar_usuario(Usuario *nuevo_usuario);
 int db_existe_usuario(const char *nombreUsuario);
 
-void db_depositar_dinero(const char* numero_cuenta, float monto);
-void db_retirar_dinero(const char* numero_cuenta, float monto);
-void db_transferir_dinero(const char* cuenta_origen, const char* cuenta_destino, float monto);
+void db_depositar_dinero(const char* numero_cuenta, float cantidad);
+void db_retirar_dinero(const char* numero_cuenta, float cantidad);
+void db_transferir_dinero(const char* cuenta_origen, const char* cuenta_destino, float cantidad);
 void db_cerrar_cuenta(const char* numero_cuenta);
 
 CuentaBancaria *db_crear_cuenta(Cliente *titular);
 CuentaBancaria *db_buscar_cuenta_por_numero(const char *numero_cuenta);
 CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID);
-int db_agregar_transaccion(const char* numero_cuenta_origen, const char* numero_cuenta_destino, float importe, time_t fecha);
+int db_agregar_transaccion(const char* numeroCuentaOrigen, const char* numeroCuentaDestino, float importe, time_t fecha, TipoTransaccion tipo);
 void db_registrar_transaccion(Transaccion* transaccion);
 int db_eliminar_transaccion(int id_transaccion);
 void eliminar_transaccion(int id_transaccion);
