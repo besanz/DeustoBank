@@ -200,13 +200,6 @@ void menu_administrador()
     } while (opcion != 4);
 }
 
-
-
-
-
-
-
-
 /*
 void menu_gestionar_clientes()
 {
@@ -224,35 +217,43 @@ void menu_gestionar_clientes()
 
         switch (opcion) {
             case 1:
+                
                 system("cls");
                 int tamanyo=get_numero_filas_cliente("SELECT * FROM Cliente");
-                Cliente ** listaClientes= malloc(sizeof(Cliente*));
+                Cliente * listaClientes= malloc(sizeof(Cliente));
                 for (int i=0; i<tamanyo;i++){
-                    printf("Cliente %i- %s %s\n", listaClientes[i].id, listaClientes[i].nombre, listaClientes[i].apellido);
+                    printf("Cliente %i- %s %s\n", listaClientes[i].clienteID, listaClientes[i].nombre, listaClientes[i].apellido);
                 }
                 free(listaClientes);
+                
                 break;
             case 2:
-                Cliente nuevo_cliente;
-                printf("Introduzca el id de cliente que quiera actualizar sus datos:\n")
-                scanf("%d", nuevo_cliente.id);
-                printf("Introduzca los datos actualizados del cliente:\n")
+                //Falta terminar
+
+                Cliente *nuevo_cliente;
+                printf("Introduzca el id de cliente que quiera actualizar sus datos:\n");
+                scanf("%d", nuevo_cliente->clienteID);
+                printf("Introduzca los datos actualizados del cliente:\n");
+                printf("Nombre de usuario: ");
                 printf("Nombre: ");
-                scanf("%s", nuevo_cliente.nombre);
+                scanf("%s", nuevo_cliente->nombre);
                 printf("Apellido: ");
-                scanf("%s", nuevo_cliente.apellido);
+                scanf("%s", nuevo_cliente->apellido);
                 printf("DNI: ");
-                scanf("%s", nuevo_cliente.dni);
+                scanf("%s", nuevo_cliente->dni);
                 printf("Direccion: ");
-                scanf("%s", nuevo_cliente.direccion);
+                scanf("%s", nuevo_cliente->direccion);
                 printf("Telefono: ");
-                scanf("%s", nuevo_cliente.telefono);
-                db_actualizar_cliente(, Cliente *datos_actualizados, Usuario *usuario_actualizado);
+                scanf("%s", nuevo_cliente->telefono);
+                
+                //db_actualizar_cliente(nuevo_cliente->clienteID, nuevo_cliente, nuevo_usuario);
                 break;
             case 3:
-                Cliente cliente_a_eliminar;
+                int id_eliminado;
                 printf("Introduzca el id del cliente que quiere eliminar: \n");
-                scanf("%i", cliente_a_eliminar.id)
+                scanf("%i", id_eliminado);
+                Cliente *cliente_a_eliminar=buscar_cliente_por_id(id_eliminado);
+                eliminar_cliente(cliente_a_eliminar);
                 break;
             case 4:
                 printf("Gracias por utilizar nuestro servicio.\n");
@@ -439,5 +440,5 @@ void temporizador_crear_cuenta(){
         printf("Cuenta creada con exito");
         sleep(1);
         system("cls");
-}
+    }
 */
