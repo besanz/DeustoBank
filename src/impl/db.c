@@ -698,7 +698,7 @@ CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID)
         strncpy(cuenta->numeroCuenta, (const char *)sqlite3_column_text(stmt, 0), sizeof(cuenta->numeroCuenta));
         cuenta->saldo = (float)sqlite3_column_double(stmt, 1);
         cuenta->cliente = (Cliente *)malloc(sizeof(Cliente));
-        cuenta->cliente->clienteID = sqlite3_column_int(stmt, 3);
+        cuenta->cliente->clienteID = sqlite3_column_int(stmt, 2);
         strncpy(cuenta->codigoBIC, (const char *)sqlite3_column_text(stmt, 4), sizeof(cuenta->codigoBIC));
 
         strncpy(cuenta->cliente->nombre, (const char *)sqlite3_column_text(stmt, 6), sizeof(cuenta->cliente->nombre));

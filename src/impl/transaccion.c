@@ -32,27 +32,27 @@ void realizar_transferencia(int cliente_id_origen) {
     float cantidad;
     Cliente *cliente_destino;
     Cliente *cliente_origen;
-    CuentaBancaria *cuenta_bancaria_origen;
-    CuentaBancaria *cuenta_bancaria_destino;
+    CuentaBancaria *cuenta_bancaria_origen = malloc(sizeof(CuentaBancaria));
+    CuentaBancaria *cuenta_bancaria_destino = malloc(sizeof(CuentaBancaria));
     char confirmacion;
 
     printf("Introduce el nombre de usuario destino: ");
     scanf("%s", usuario_destino);
     int idUser = db_obtener_usuarioID(usuario_destino);
-    printf("%d imprime", idUser);
+    printf("imprime\n");
 
     cliente_destino = db_buscar_cliente_por_usuarioID(idUser);
-
+    printf("imprime 2\n ");
     if (cliente_destino == NULL) {
         printf("Usuario destino no encontrado.\n");
         return;
     }
 
     cliente_origen = db_buscar_cliente_por_id(cliente_id_origen);
-
+    printf("imprime 3\n ");//SÍ LLEGA AQUÍ
     cuenta_bancaria_origen = db_buscar_cuenta_por_cliente(cliente_origen->clienteID);
     cuenta_bancaria_destino = db_buscar_cuenta_por_cliente(cliente_destino->clienteID);
-
+    printf("imprime 4\n "); //NO LLEGA AQUÍ
     if (cuenta_bancaria_origen == NULL || cuenta_bancaria_destino == NULL) {
         printf("Error al obtener cuentas bancarias.\n");
         return;

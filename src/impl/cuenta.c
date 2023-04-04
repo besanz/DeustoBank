@@ -40,7 +40,6 @@ void crear_cuenta(int clienteID) {
 
         rc = sqlite3_step(stmt);      
 
-        rc = sqlite3_step(stmt);
         if (rc != SQLITE_DONE) {
             fprintf(stderr, "Error al crear la cuenta bancaria: %s\n", sqlite3_errmsg(db));
         } else {
