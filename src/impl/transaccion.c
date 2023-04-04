@@ -35,7 +35,7 @@ void realizar_transferencia(int cliente_id_origen) {
     CuentaBancaria *cuenta_bancaria_origen = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
     CuentaBancaria *cuenta_bancaria_destino = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
     char confirmacion;
-
+    printf("Saldo: %f", cuenta_bancaria_origen->saldo);
     printf("Introduce el nombre de usuario destino: ");
     scanf("%s", usuario_destino);
     int idUser = db_obtener_usuarioID(usuario_destino);
@@ -49,16 +49,7 @@ void realizar_transferencia(int cliente_id_origen) {
     }
 
     cliente_origen = db_buscar_cliente_por_id(cliente_id_origen);
-    printf("imprime 3\n ");//SÍ LLEGA AQUÍ
-
-    printf("origen: %d\n ",cliente_origen->clienteID);
-    printf("destino: %d\n ", cliente_destino->clienteID);
-    printf("origen: %d\n ",cliente_id_origen);
-    printf("destino: %d\n", cliente_destino->clienteID);
-
-
     cuenta_bancaria_origen = db_buscar_cuenta_por_cliente(cliente_origen->clienteID);
-    printf("Cuenta bancaria origen: %s\n", cuenta_bancaria_origen->numeroCuenta);
     cuenta_bancaria_destino = db_buscar_cuenta_por_cliente(cliente_destino->clienteID);
 
     if (cuenta_bancaria_origen == NULL || cuenta_bancaria_destino == NULL) {
@@ -69,7 +60,7 @@ void realizar_transferencia(int cliente_id_origen) {
     printf("Introduce la cantidad a transferir: ");
     scanf("%f", &cantidad);
 
-    if (cantidad <= 0 || cantidad > cuenta_bancaria_origen->saldo) {
+    if (cantidad <= 0.0 || cantidad > cuenta_bancaria_origen->saldo) {
         printf("Cantidad invalida. La transferencia no puede realizarse.\n");
         return;
     }
