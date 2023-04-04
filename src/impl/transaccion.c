@@ -32,28 +32,35 @@ void realizar_transferencia(int cliente_id_origen) {
     float cantidad;
     Cliente *cliente_destino = NULL;
     Cliente *cliente_origen = NULL;
-    CuentaBancaria *cuenta_bancaria_origen = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
-    CuentaBancaria *cuenta_bancaria_destino = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
+    CuentaBancaria *cuenta_bancaria_origen = NULL;
+    CuentaBancaria *cuenta_bancaria_destino = NULL;
     char confirmacion;
-    printf("Saldo: %f", cuenta_bancaria_origen->saldo);
+
+    cliente_origen = db_buscar_cliente_por_id(cliente_id_origen);
+    cuenta_bancaria_origen = db_buscar_cuenta_por_cliente(cliente_origen->clienteID);
+
+    if (cuenta_bancaria_origen == NULL) {
+        printf("Error al obtener cuenta bancaria origen.\n");
+        return;
+    }
+
+    printf("Saldo: %.2f\n", cuenta_bancaria_origen->saldo);
+
     printf("Introduce el nombre de usuario destino: ");
     scanf("%s", usuario_destino);
-    int idUser = db_obtener_usuarioID(usuario_destino);
-    printf("imprime\n");
 
-    cliente_destino = db_buscar_cliente_por_usuarioID(idUser);
-    printf("imprime 2\n ");
+    int idDestino = db_obtener_usuarioID(usuario_destino);
+    cliente_destino = db_buscar_cliente_por_usuarioID(idDestino);
+
     if (cliente_destino == NULL) {
         printf("Usuario destino no encontrado.\n");
         return;
     }
 
-    cliente_origen = db_buscar_cliente_por_id(cliente_id_origen);
-    cuenta_bancaria_origen = db_buscar_cuenta_por_cliente(cliente_origen->clienteID);
     cuenta_bancaria_destino = db_buscar_cuenta_por_cliente(cliente_destino->clienteID);
 
-    if (cuenta_bancaria_origen == NULL || cuenta_bancaria_destino == NULL) {
-        printf("Error al obtener cuentas bancarias.\n");
+    if (cuenta_bancaria_destino == NULL) {
+        printf("Error al obtener cuenta bancaria destino.\n");
         return;
     }
 
@@ -67,8 +74,9 @@ void realizar_transferencia(int cliente_id_origen) {
 
     printf("Informacion de las cuentas:\n\n");
     printf("Cuenta origen:\n");
-    //printf("Nombre: %s %s\n", cliente_origen->nombre, cliente_origen->apellido);
+    printf("Nombre: %s %s\n", cliente_origen->nombre, cliente_origen->apellido);
     printf("Numero de cuenta: %s\n", cuenta_bancaria_origen->numeroCuenta);
+    printf("Saldo: %.2f\n", cuenta_bancaria_origen->saldo);
 
     printf("\nCuenta destino:\n");
     printf("Nombre: %s %s\n", cliente_destino->nombre, cliente_destino->apellido);
