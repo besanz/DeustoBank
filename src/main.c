@@ -21,13 +21,13 @@ void menu_gestionar_transferencias();
 int main()
 {
     db_inicializar();
-    temporizador_pantalla_inicial();
     pantalla_inicio();
     return 0;
 }
 
 void pantalla_inicio()
 {
+    temporizador_pantalla_inicial();
     int opcion;
     Usuario *usuario;
     Cliente *cliente;
@@ -41,14 +41,16 @@ void pantalla_inicio()
         printf("\nPor favor, elige una opcion: ");
         scanf("%d", &opcion);
 
+
         switch (opcion)
         {
         case 1:
             temporizador_carga_inicio_sesion();
             usuario = inicio_sesion_usuario();
+
             if (usuario != NULL)
             {
-                if (usuario->tipo == 1)
+                if (usuario->tipo == 1) //1 = ADMINISTRADOR
                 {
                     temporizador_inicio_sesion();
                     menu_administrador();
@@ -95,7 +97,7 @@ void registro_usuario()
     Cliente nuevo_cliente;
     Usuario nuevo_usuario;
 
-    printf("\n--- Registro de nuevo cliente ---\n");
+    printf("\n---- Registro de nuevo cliente ----\n");
     printf("\nNombre de usuario: ");
     scanf("%s", nuevo_usuario.nombreUsuario);
     printf("Contrasena: ");
@@ -131,7 +133,7 @@ Usuario *inicio_sesion_usuario()
 {
 
     char nombreUsuario[50], contrasena[50];
-    printf("\n--- Inicio de sesion ---\n");
+    printf("\n---- Inicio de Sesion ----\n");
     printf("\nNombre de usuario: ");
     scanf("%s", nombreUsuario);
     printf("Contrasena: ");

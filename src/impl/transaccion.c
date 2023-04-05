@@ -43,7 +43,7 @@ void realizar_transferencia(int cliente_id_origen) {
         return;
     }
 
-    printf("Saldo: %.2f\n", cuenta_bancaria_origen->saldo);
+    printf("Saldo actual: %.2f euros.\n", cuenta_bancaria_origen->saldo);
 
     printf("Introduce el nombre de usuario destino: ");
     scanf("%s", usuario_destino);
@@ -75,7 +75,7 @@ void realizar_transferencia(int cliente_id_origen) {
     printf("Cuenta origen:\n");
     printf("Nombre: %s %s\n", cliente_origen->nombre, cliente_origen->apellido);
     printf("Numero de cuenta: %s\n", cuenta_bancaria_origen->numeroCuenta);
-    printf("Saldo: %.2f euros.\n", cuenta_bancaria_origen->saldo);
+    printf("Saldo: %.2f EUR.\n", cuenta_bancaria_origen->saldo);
 
     printf("\nCuenta destino:\n");
     printf("Nombre: %s %s\n", cliente_destino->nombre, cliente_destino->apellido);

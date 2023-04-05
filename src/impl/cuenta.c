@@ -102,7 +102,7 @@ void mostrar_informacion_cuenta(int clienteID)
     if (cuenta)
     {
         printf("\nNumero de cuenta: %s\n", cuenta->numeroCuenta);
-        printf("Saldo: %.2f euros.\n", cuenta->saldo);
+        printf("Saldo: %.2f EUR.\n", cuenta->saldo);
         printf("Titular: %s %s\n", cuenta->cliente->nombre, cuenta->cliente->apellido);
     }
     else

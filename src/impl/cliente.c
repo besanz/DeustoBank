@@ -118,11 +118,11 @@ void mostrar_transacciones(Transaccion *transacciones, int num_transacciones)
     for (int i = 0; i < num_transacciones; i++)
     {
         printf("Transaccion %d:\n", i + 1);
-        printf("  ID: %d\n", transacciones[i].transaccionID);
-        printf("  Cuenta Origen: %d\n", transacciones[i].numeroCuentaOrigen);
-        printf("  Cuenta Destino: %d\n", transacciones[i].numeroCuentaDestino);
-        printf("  Cantidad: %.2f\n", transacciones[i].importe);
-        printf("  Fecha: %s\n", ctime(&transacciones[i].fecha)); // Convertir time_t a string legible
+        printf("  ID: %d.\n", transacciones[i].transaccionID);
+        printf("  Cuenta Origen: DEUSTOBNK**%d\n", transacciones[i].numeroCuentaOrigen);
+        printf("  Cuenta Destino: DEUSTOBNK**%d\n", transacciones[i].numeroCuentaDestino);
+        printf("  Cantidad: %.2f euros.\n", transacciones[i].importe);
+        printf("  Fecha: %s.\n", ctime(&transacciones[i].fecha)); // Convertir time_t a string legible
     }
 }
 
@@ -231,16 +231,16 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
     do
     {
         system("cls");
-        printf("\nBienvenido al menu de DeustoBank.\n");
+        printf("\n---- DeustoBank V1 ----\n");
         printf("\nQue operacion deseas realizar?\n");
         printf("\n1. Mostrar informacion del cliente\n");
         printf("2. Mostrar informacion de la cuenta\n");
         printf("3. Depositar dinero\n");
         printf("4. Retirar dinero\n");
         printf("5. Realizar transferencia\n");
-        printf("6. Mostrar transacciones\n");
-        printf("7. Mostrar informe financiero\n");
-        printf("8. Cerrar cuenta\n");
+        printf("6. Mostrar mis transacciones\n");
+        printf("7. Imprimir informe financiero\n");
+        printf("8. Cerrar mi cuenta.\n");
         printf("9. Salir\n");
         printf("\nSeleccione una opcion: ");
         scanf("%d", &opcion);
@@ -351,7 +351,7 @@ void liberar_cliente(Cliente *cliente)
 
 void volver_al_menu(Cliente* cliente, Usuario* usuario){
     char volver;
-    printf("\n Para volver al menu de cliente introduzca cualquier tecla: ");
+    printf("\nPulse 'Enter' para volver.");
             scanf("%c", &volver);
             while (volver!=' ')
             {
