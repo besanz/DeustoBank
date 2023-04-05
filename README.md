@@ -1,17 +1,24 @@
-DeustoBank V1
+**DeustoBank - V1**
 
-Compilación:
+# Compilación:
 
+```
 gcc src/main.c src/impl/cliente.c src/impl/cuenta.c src/impl/transaccion.c src/impl/db.c src/impl/usuario.c lib/sqlite3.c -o startbank -Isrc -Isrc/dec -ILib -DSQLITE_THREADSAFE=0
+```
 
-Ejecución:
-
+# Ejecución:
+```
 startbank.exe
+```
+# Usuarios Test (usuario, contraseña):
 
-DeustoBank es un sistema de banca por línea de comandos desarrollado en C y C++, que simula una banca real, permitiendo a los usuarios realizar transacciones bancarias de manera fácil, rápida y segura. 
-Utiliza SQLite3 para el almacenamiento de datos.
+- jose, jose
+- besanz, besanz
+- jokinson, jokinson
+- aritz, aritz
 
-Características
+
+# Características
 
 - Creación de cuentas bancarias para clientes
 - Consulta de información de cuentas bancarias
@@ -20,7 +27,7 @@ Características
 - Eliminación de cuentas bancarias
 - Gestión de clientes y administradores
 
-Algunas de las opciones disponibles en el menú de DeustoBank incluyen:
+# Algunas de las opciones:
 
 1. Mostrar información del cliente
 2. Mostrar información de la cuenta
@@ -31,7 +38,7 @@ Algunas de las opciones disponibles en el menú de DeustoBank incluyen:
 7. Imprimir un informe financiero en formato .txt
 8. Cerrar la cuenta de forma permanente
 
-Requisitos
+# Requisitos
 Para ejecutar DeustoBank, necesitarás lo siguiente:
 
 - Compilador de C y C++ (nosotros hemos usado GCC)
@@ -39,12 +46,12 @@ Para ejecutar DeustoBank, necesitarás lo siguiente:
 
 Toda la información se almacena en deustobank.db
 
-Uso:
+# Uso:
 
 ./deustobank
 
 
-Licencia
+# Licencia
 Este proyecto fue desarrollado siguiendo la metodología de la parte práctica de la asignatura Programacion IV. 
 
 Universidad de Deusto, San Sebastián.
