@@ -1,0 +1,13 @@
+Informe financiero del usuario Aritz
+-------------------------------
+Numero de cuenta: DEUSTOBNK0000000023
+Nombre del titular: Aritz
+Saldo actual: 50.00
+Numero de depositos: 1
+Total depositos: 500.00
+Numero de retiros: 1
+Total retiros: 250.00
+Numero de transferencias enviadas: 1
+Total transferencias enviadas: 200.00
+Numero de transferencias recibidas: 0
+Total transferencias recibidas: 0.00

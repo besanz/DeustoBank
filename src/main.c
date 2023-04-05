@@ -121,7 +121,7 @@ void registro_usuario()
     // Registrar el nuevo usuario y obtener el ID de usuario generado
     db_registrar_usuario(&nuevo_usuario);
     nuevo_cliente.usuarioID = db_obtener_usuarioID(nuevo_usuario.nombreUsuario);
-    ////temporizador_registro_usuario();
+    temporizador_registro_usuario();
     // Pase el nuevo_usuario como argumento adicional
     db_registrar_cliente(&nuevo_cliente, &nuevo_usuario);
     printf("Cliente registrado exitosamente.\n");
@@ -152,7 +152,6 @@ Usuario *inicio_sesion_usuario()
         strcpy(usuario->contrasena, contrasena);
         usuario->tipo = usuario->tipo;
         usuario->datos = cliente;
-        printf("\nInicio de sesion exitoso.\n");
         return usuario;
     }
     else

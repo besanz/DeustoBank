@@ -89,5 +89,17 @@ void temporizador_realizar_transferencia();
  *@param seconds: segundos a esperar.
 */
 void wait(float seconds);
+void temporizador_pantalla_inicial();
+void temporizador_carga_inicio_sesion();
+void temporizador_inicio_sesion();
+void temporizador_registro_usuario();
+void temporizador_pantalla_registro();
+void temporizador_salida();
+void temporizador_crear_cuenta();
+void temporizador_mostrar_datos_cuenta();
+void temporizador_realizar_deposito();
+void temporizador_realizar_retiro();
+void temporizador_realizar_transferencia();
+void temporizador_menu_con_cuenta();
 
 #endif // USUARIO_H

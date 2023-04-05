@@ -108,6 +108,7 @@ void mostrar_informacion_cliente(Cliente *cliente)
         printf("Direccion: %s\n", cliente->direccion);
         printf("Telefono: %s\n", cliente->telefono);
         printf("DNI: %s\n", cliente->dni);
+        wait(5);
     }
 }
 
@@ -182,6 +183,7 @@ void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario)
 
     do
     {
+        system("cls");
         printf("Bienvenido, %s %s\n", cliente->nombre, cliente->apellido);
         printf("\n1. Abrir cuenta\n");
         printf("2. Ver informacion del cliente\n");
@@ -192,11 +194,12 @@ void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario)
         switch (opcion)
         {
         case 1:
-            printf("\nPor favor, verifica tu contrasena: ");
+            printf("Por favor, verifica tu contrasena: ");
             scanf("%s", contrasena);
             if (strcmp(contrasena, usuario->contrasena) == 0)
             {
                 crear_cuenta(cliente->clienteID);
+                temporizador_menu_con_cuenta();
                 menu_cliente_con_cuenta(cliente, usuario);
             }
             else
@@ -205,10 +208,11 @@ void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario)
             }
             break;
         case 2:
+            temporizador_mostrar_datos_cuenta();
             mostrar_informacion_cliente(cliente);
             break;
         case 3:
-            printf("Cerrando sesion...\n");
+            temporizador_salida();
             break;
         default:
             printf("Opcion invalida, por favor intente nuevamente.\n");
@@ -226,6 +230,7 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
 
     do
     {
+        system("cls");
         printf("\nBienvenido al menu de DeustoBank.\n");
         printf("\nQue operacion deseas realizar?\n");
         printf("\n1. Mostrar informacion del cliente\n");
@@ -244,10 +249,15 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
         switch (opcion)
         {
         case 1:
+            temporizador_mostrar_datos_cuenta();
             mostrar_informacion_cliente(cliente);
+            volver_al_menu(cliente, usuario);
+            
             break;
         case 2:
+            temporizador_mostrar_datos_cuenta();
             mostrar_informacion_cuenta(cliente->clienteID);
+            volver_al_menu(cliente, usuario);
             break;
         case 3:
         {
@@ -255,7 +265,9 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
             printf("Ingrese la cantidad a depositar: ");
             scanf("%f", &cantidad);
             depositar_dinero(cliente->clienteID, cantidad);
+            temporizador_realizar_deposito();
             printf("Has depositado %.2f euros en su cuenta.\n", cantidad);
+           volver_al_menu(cliente, usuario);
             break;
         }
         case 4:
@@ -264,25 +276,32 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
             printf("Ingrese la cantidad a retirar: ");
             scanf("%f", &cantidad);
             retirar_dinero(cliente->clienteID, cantidad);
+            temporizador_realizar_retiro();
             printf("Se retiraron %.2f euros de su cuenta.\n", cantidad);
+            volver_al_menu(cliente, usuario);
             break;
         }
         case 5:
+            system("cls");
             realizar_transferencia(cliente->clienteID);
+            volver_al_menu(cliente, usuario);
             break;
         case 6:
+            system("cls");
             transacciones = listar_transacciones(cuenta->numeroCuenta, &num_transacciones);
             if (transacciones != NULL)
             {
                 mostrar_transacciones(transacciones, num_transacciones);
                 free(transacciones);
+                volver_al_menu(cliente,usuario);
             }
             else
             {
                 printf("No hay transacciones disponibles para mostrar.\n");
             }
-            break;
+        break;
         case 7:
+            
             informe = generar_informe_financiero(cliente->clienteID);
             if (informe != NULL)
             {
@@ -304,7 +323,8 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
             menu_cliente_sin_cuenta(cliente, usuario);
             break;
         case 9:
-            printf("Saliendo del menu del cliente...\n");
+            temporizador_salida();
+            exit(0);
             break;
         default:
             printf("Opcion no valida. Por favor, intente de nuevo.\n");
@@ -320,10 +340,25 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
 }
 
 
+
 void liberar_cliente(Cliente *cliente)
 {
     if (cliente != NULL)
     {
         free(cliente);
     }
+}
+
+void volver_al_menu(Cliente* cliente, Usuario* usuario){
+    char volver;
+    printf("\n Para volver al menu de cliente introduzca cualquier tecla: ");
+            scanf("%c", &volver);
+            while (volver!=' ')
+            {
+                system("cls");
+                temporizador_menu_con_cuenta();
+                menu_cliente_con_cuenta(cliente,usuario);
+             
+            }
+            
 }

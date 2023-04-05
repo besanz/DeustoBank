@@ -107,4 +107,6 @@ void mostrar_informacion_cliente(Cliente *cliente);
 */
 void liberar_cliente(Cliente *cliente);
 
+void volver_al_menu(Cliente* cliente, Usuario* usuario);
+
 #endif // CLIENTE_H
