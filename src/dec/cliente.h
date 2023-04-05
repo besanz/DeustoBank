@@ -86,7 +86,7 @@ int cliente_tiene_cuenta(int clienteID);
  * Menu Cliente sin Cuenta
  * @param cliente: Puntero a un objeto Cliente para el cual se muestra el menu.
  * @param usuario: Puntero a un objeto Usuario del cliente.
- */
+*/
 void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario);
 
 /*

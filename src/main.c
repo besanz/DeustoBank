@@ -6,6 +6,7 @@
 #include "dec/cuenta.h"
 #include "dec/transaccion.h"
 #include "dec/db.h"
+#include "dec/usuario.h"
 
 void pantalla_inicio();
 void menu_principal();
@@ -13,11 +14,6 @@ void menu_administrador();
 void menu_cliente();
 void registro_usuario();
 Usuario *inicio_sesion_usuario();
-void temporizador_pantalla_inicial();
-void temporizador_registro_usuario();
-void temporizador_pantalla_registro();
-void temporizador_salida();
-void temporizador_crear_cuenta();
 void menu_gestionar_clientes();
 void menu_gestionar_cuentas();
 void menu_gestionar_transferencias();
@@ -25,6 +21,7 @@ void menu_gestionar_transferencias();
 int main()
 {
     db_inicializar();
+    temporizador_pantalla_inicial();
     pantalla_inicio();
     return 0;
 }
@@ -47,15 +44,18 @@ void pantalla_inicio()
         switch (opcion)
         {
         case 1:
+            temporizador_carga_inicio_sesion();
             usuario = inicio_sesion_usuario();
             if (usuario != NULL)
             {
                 if (usuario->tipo == 1)
                 {
+                    temporizador_inicio_sesion();
                     menu_administrador();
                 }
                 else
                 {
+                    temporizador_inicio_sesion();
                     cliente = db_buscar_cliente_por_usuarioID(usuario->usuarioID);
                     if (cliente != NULL)
                     {
@@ -81,6 +81,7 @@ void pantalla_inicio()
             registro_usuario();
             break;
         case 3:
+            temporizador_salida();
             break;
         default:
             printf("Opcion invalida. Por favor, intente de nuevo.\n");
@@ -98,9 +99,9 @@ void registro_usuario()
     Usuario nuevo_usuario;
     ////temporizador_pantalla_registro();
     printf("\n--- Registro de nuevo cliente ---\n");
-    printf("Nombre de usuario: ");
+    printf("Nombre de usuario: \n");
     scanf("%s", nuevo_usuario.nombreUsuario);
-    printf("Contrasena: ");
+    printf("Contrasena: \n");
     scanf("%s", nuevo_usuario.contrasena);
 
     if (db_existe_usuario(nuevo_usuario.nombreUsuario))
@@ -182,7 +183,7 @@ void menu_administrador()
         switch (opcion)
         {
         case 1:
-            // menu_gestionar_clientes();
+            //menu_gestionar_clientes();
             break;
         case 2:
             // menu_gestionar_cuentas_cliente();
@@ -265,6 +266,8 @@ void menu_gestionar_clientes()
     } while (opcion != 4);
 
 }
+*/
+/*
 void menu_gestionar_cuentas()
 {
     int opcion;
@@ -326,119 +329,4 @@ void menu_gestionar_transacciones()
 
 }
 
-
-void temporizador_pantalla_inicial(){
-     system("cls");
-        printf("Descargando actualizaciones.");
-        sleep(1);
-        system("cls");
-        printf("Descargando actualizaciones..");
-        sleep(1);
-        system("cls");
-        printf("Descargando actualizaciones...");
-        sleep(1);
-        system("cls");
-        printf("Inicializando  DeustoBank.");
-        sleep(1);
-        system("cls");
-        printf("Inicializando  DeustoBank..");
-        sleep(1);
-        system("cls");
-        printf("Inicializando  DeustoBank...");
-        sleep(1);
-        system("cls");
-}
-void temporizador_pantalla_registro(){
-     system("cls");
-        printf("Entrando en registro de usuarios.");
-        sleep(1);
-        system("cls");
-        printf("Entrando en registro de usuarios..");
-        sleep(1);
-        system("cls");
-        printf("Entrando en registro de usuarios...");
-        sleep(1);
-        system("cls");
-}
-void temporizador_registro_usuario(){
-     system("cls");
-        printf("Registrando usuario.");
-        sleep(1);
-        system("cls");
-        printf("Registrando usuario..");
-        sleep(1);
-        system("cls");
-        printf("Registrando usuario...");
-        sleep(1);
-        system("cls");
-        printf("Registrando usuario.");
-        sleep(1);
-        system("cls");
-        printf("Registrando usuario..");
-        sleep(1);
-        system("cls");
-        printf("Registrando usuario...");
-        sleep(1);
-        system("cls");
-}
-void temporizador_pantalla_inicio_sesion(){
-     system("cls");
-        printf("Iniciando sesion.");
-        sleep(1);
-        system("cls");
-        printf("Iniciando sesion..");
-        sleep(1);
-        system("cls");
-        printf("Iniciando sesion...");
-        sleep(1);
-        system("cls");
-}
-void temporizador_salida(){
-     system("cls");
-        printf("Cerrando sesion.");
-        sleep(1);
-        system("cls");
-        printf("Cerrando sesion..");
-        sleep(1);
-        system("cls");
-        printf("Cerrando sesion...");
-        sleep(1);
-        system("cls");
-        printf("Saliendo.");
-        sleep(1);
-        system("cls");
-        printf("Saliendo..");
-        sleep(1);
-        system("cls");
-        printf("Saliendo...");
-        sleep(1);
-        system("cls");
-        printf("Gracias por utilizar DeustoBank, vuelva pronto");
-        sleep(1);
-        system("cls");
-}
-void temporizador_crear_cuenta(){
-     system("cls");
-        printf("Creando cuenta.");
-        sleep(1);
-        system("cls");
-        printf("Creando cuenta..");
-        sleep(1);
-        system("cls");
-        printf("Creando cuenta...");
-        sleep(1);
-        system("cls");
-        printf("Validando datos.");
-        sleep(1);
-        system("cls");
-        printf("Validando datos..");
-        sleep(1);
-        system("cls");
-        printf("Validando datos...");
-        sleep(1);
-        system("cls");
-        printf("Cuenta creada con exito");
-        sleep(1);
-        system("cls");
-    }
 */

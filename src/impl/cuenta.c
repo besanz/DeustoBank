@@ -40,7 +40,7 @@ void crear_cuenta(int clienteID) {
         return;
     }
 
-    const char *sql = "INSERT INTO cuentas (numeroCuenta, saldo, clienteID, codigoBIC) VALUES (?, 0, ?, ?);";
+    const char *sql = "INSERT INTO cuentas (numeroCuenta, saldo, clienteID, codigoBIC) VALUES (?, 0, ?, DBANKSPAINSS);";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     if (rc == SQLITE_OK) {
@@ -101,8 +101,8 @@ void mostrar_informacion_cuenta(int clienteID)
     CuentaBancaria *cuenta = db_buscar_cuenta_por_clienteID(clienteID);
     if (cuenta)
     {
-        printf("Numero de cuenta: %s\n", cuenta->numeroCuenta);
-        printf("Saldo: %.2f\n", cuenta->saldo);
+        printf("\nNumero de cuenta: %s\n", cuenta->numeroCuenta);
+        printf("Saldo: %.2f euros.\n", cuenta->saldo);
         printf("Titular: %s %s\n", cuenta->cliente->nombre, cuenta->cliente->apellido);
     }
     else
@@ -114,28 +114,59 @@ void mostrar_informacion_cuenta(int clienteID)
 
 void depositar_dinero(int clienteID, float cantidad)
 {
-    CuentaBancaria *cuenta = db_buscar_cuenta_por_clienteID(clienteID);
-    printf("El duenyo es el: %s\n", cuenta->cliente->clienteID);
-    if (cuenta != NULL)
+    if (cantidad != 0)
     {
+        time_t fecha = time(NULL);
+        db_agregar_transaccion_por_clienteID(clienteID, clienteID, cantidad, fecha, DEPOSITO);
         db_depositar_dinero(clienteID, cantidad);
-        free(cuenta); // Asegúrate de liberar la memoria después de su uso
     }
     else
     {
-        printf("No se pudo encontrar la cuenta para el clienteID: %d\n", clienteID);
+        printf("Por favor, introduzca una cantidad valida: %d\n", clienteID);
     }
 }
 
 void retirar_dinero(int clienteID, float cantidad)
 {
-    db_retirar_dinero(clienteID, cantidad);
-}
+    if (cantidad != 0)
+    {
+        CuentaBancaria *cuenta = db_buscar_cuenta_por_clienteID(clienteID);
+        if (cuenta == NULL)
+        {
+            printf("No se pudo encontrar la cuenta del cliente.\n");
+            return;
+        }
 
+        if (cuenta->saldo < cantidad)
+        {
+            printf("Saldo insuficiente para realizar la transacción.\n");
+            free(cuenta);
+            return;
+        }
+
+        time_t fecha = time(NULL);
+        db_agregar_transaccion_por_clienteID(clienteID, clienteID, cantidad, fecha, RETIRADA);
+        db_retirar_dinero(clienteID, cantidad);
+
+        free(cuenta);
+    }
+    else
+    {
+        printf("Por favor, introduzca una cantidad valida.\n");
+    }
+}
 
 void transferir_dinero(int clienteID_origen, int clienteID_destino, float cantidad)
 {
+    if (cantidad != 0)
+    {
+    time_t fecha = time(NULL);
+    db_agregar_transaccion_por_clienteID(clienteID_origen, clienteID_destino, cantidad, fecha, TRANSFERENCIA);
     db_transferir_dinero(clienteID_origen, clienteID_destino, cantidad);
+    }else
+    {
+        printf("Por favor, introduzca una cantidad valida.\n");
+    }
 }
 
 void cerrar_cuenta(int clienteID)

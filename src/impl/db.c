@@ -499,18 +499,17 @@ int db_existe_usuario(const char *nombreUsuario)
     return existe;
 }
 
-
-
-
 void db_retirar_dinero(int clienteID, float cantidad)
 {
     sqlite3 *db;
+    abrir_db(&db);
+
     if (abrir_db(&db) != SQLITE_OK)
     {
         return;
     }
 
-    sqlite3_exec(db, "BEGIN TRANSACTION;", 0, 0, 0);
+    sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION;", 0, 0, 0);
     const char *sql = "UPDATE cuentas SET saldo = saldo - ? WHERE clienteID = ?";
     sqlite3_stmt *stmt;
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK)
@@ -520,21 +519,19 @@ void db_retirar_dinero(int clienteID, float cantidad)
         sqlite3_step(stmt);
     }
     sqlite3_finalize(stmt);
+
     sqlite3_exec(db, "COMMIT;", 0, 0, 0);
     cerrar_db(db);
 }
-
 
 void db_transferir_dinero(int clienteID_origen, int clienteID_destino, float cantidad)
 {
     db_retirar_dinero(clienteID_origen, cantidad);
     db_depositar_dinero(clienteID_destino, cantidad);
 
-    time_t fecha = time(NULL);
-
     if (clienteID_origen != 0 && clienteID_destino != 0 && cantidad != 0) 
     {
-        db_agregar_transaccion_por_clienteID(clienteID_origen, clienteID_destino, cantidad, fecha, TRANSFERENCIA);
+        time_t fecha = time(NULL);
         db_agregar_transaccion_por_clienteID(clienteID_origen, clienteID_destino, cantidad, fecha, TRANSFERENCIA);
     }
 }
@@ -715,8 +712,7 @@ void db_agregar_transaccion(const char *numeroCuentaOrigen, const char *numeroCu
         fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
         return;
     }
-    printf("\nHasta aqui bien 2\n");
-    // Comenzar la transaccion
+    
     rc = sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION;", 0, 0, 0);
     if (rc != SQLITE_OK)
     {
@@ -724,7 +720,6 @@ void db_agregar_transaccion(const char *numeroCuentaOrigen, const char *numeroCu
         cerrar_db(db);
         return;
     }
-    printf("\nHasta aqui bien 3");
 
     snprintf(sql, sizeof(sql), "INSERT INTO transacciones (numeroCuentaOrigen, numeroCuentaDestino, importe, fecha, tipo) VALUES (?, ?, ?, ?, ?);");
 
@@ -886,6 +881,7 @@ Transaccion *db_listar_transacciones(const char *numero_cuenta, int *num_transac
 
     return transacciones;
 }
+
 CuentaBancaria *db_buscar_cuenta_por_clienteID(int clienteID)
 {
     sqlite3 *db;
@@ -952,11 +948,9 @@ void db_depositar_dinero(int clienteID, float cantidad)
     }
     sqlite3_finalize(stmt);
 
-    time_t fecha = time(NULL);
+
     sqlite3_exec(db, "COMMIT;", 0, 0, 0);
     cerrar_db(db);
-    
-    db_agregar_transaccion_por_clienteID(clienteID, clienteID, cantidad, fecha, DEPOSITO);
 }
 
 void db_agregar_transaccion_por_clienteID(int clienteIDOrigen, int clienteIDDestino, float importe, time_t fecha, TipoTransaccion tipo)
@@ -1033,7 +1027,6 @@ void db_agregar_transaccion_por_clienteID(int clienteIDOrigen, int clienteIDDest
     free(cuentaOrigen);
     free(cuentaDestino);
 }
-
 
 Informe *db_mostrar_informe_financiero(const char *numero_cuenta)
 {

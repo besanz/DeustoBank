@@ -76,15 +76,15 @@ void realizar_transferencia(int cliente_id_origen) {
     printf("Cuenta origen:\n");
     printf("Nombre: %s %s\n", cliente_origen->nombre, cliente_origen->apellido);
     printf("Numero de cuenta: %s\n", cuenta_bancaria_origen->numeroCuenta);
-    printf("Saldo: %.2f\n", cuenta_bancaria_origen->saldo);
+    printf("Saldo: %.2f euros.\n", cuenta_bancaria_origen->saldo);
 
     printf("\nCuenta destino:\n");
     printf("Nombre: %s %s\n", cliente_destino->nombre, cliente_destino->apellido);
     printf("Numero de cuenta: %s\n", cuenta_bancaria_destino->numeroCuenta);
 
-    printf("\nCantidad a transferir: %.2f\n", cantidad);
+    printf("\nCantidad a transferir: %.2f euros.\n", cantidad);
 
-    printf("¿Desea confirmar la transferencia? (S/N): ");
+    printf("Desea confirmar la transferencia? (S/N): ");
     scanf(" %c", &confirmacion);
 
     if (toupper(confirmacion) != 'S') {
@@ -94,7 +94,9 @@ void realizar_transferencia(int cliente_id_origen) {
 
     db_transferir_dinero(cuenta_bancaria_origen->cliente->clienteID, cuenta_bancaria_destino->cliente->clienteID, cantidad);
 
-    printf("Transferencia realizada con exito.\n");
+    printf("\nTransferencia realizada con exito!\n");
+    printf("%s recibira %.2f euros en su cuenta.\n", cuenta_bancaria_destino->cliente->nombre, cantidad);
+
 }
 
 

@@ -184,10 +184,10 @@ void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario)
     do
     {
         printf("Bienvenido, %s %s\n", cliente->nombre, cliente->apellido);
-        printf("1. Abrir cuenta\n");
+        printf("\n1. Abrir cuenta\n");
         printf("2. Ver informacion del cliente\n");
         printf("3. Cerrar sesion\n");
-        printf("Seleccione una opcion: ");
+        printf("\nSeleccione una opcion: ");
         scanf("%d", &opcion);
 
         switch (opcion)
@@ -227,8 +227,9 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
 
     do
     {
-        printf("\nBienvenido al menu del cliente con cuenta\n");
-        printf("1. Mostrar informacion del cliente\n");
+        printf("\nBienvenido al menu de DeustoBank.\n");
+        printf("\nQue operacion deseas realizar?\n");
+        printf("\n1. Mostrar informacion del cliente\n");
         printf("2. Mostrar informacion de la cuenta\n");
         printf("3. Depositar dinero\n");
         printf("4. Retirar dinero\n");
@@ -237,7 +238,7 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
         printf("7. Mostrar informe financiero\n");
         printf("8. Cerrar cuenta\n");
         printf("9. Salir\n");
-        printf("Seleccione una opcion: ");
+        printf("\nSeleccione una opcion: ");
         scanf("%d", &opcion);
         fflush(stdin);
 
@@ -254,7 +255,8 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
             float cantidad = 0;
             printf("Ingrese la cantidad a depositar: ");
             scanf("%f", &cantidad);
-            depositar_dinero(cliente->clienteID, cantidad);;
+            depositar_dinero(cliente->clienteID, cantidad);
+            printf("Has depositado %.2f euros en su cuenta.\n", cantidad);
             break;
         }
         case 4:
@@ -262,7 +264,8 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
             float cantidad;
             printf("Ingrese la cantidad a retirar: ");
             scanf("%f", &cantidad);
-            retirar_dinero(cuenta->cliente->clienteID, cantidad);
+            retirar_dinero(cliente->clienteID, cantidad);
+            printf("Se retiraron %.2f euros de su cuenta.\n", cantidad);
             break;
         }
         case 5:
@@ -298,7 +301,7 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
             menu_cliente_sin_cuenta(cliente, usuario);
             break;
         case 9:
-            printf("Saliendo del menu del cliente con cuenta...\n");
+            printf("Saliendo del menu del cliente...\n");
             break;
         default:
             printf("Opcion no valida. Por favor, intente de nuevo.\n");

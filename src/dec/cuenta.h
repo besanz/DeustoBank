@@ -44,9 +44,9 @@ void transferir_dinero(int clienteID_origen, int clienteID_destino, float cantid
 void cerrar_cuenta(int clienteID);
 
 /*
-* Busca una cuenta bancaria por su numero de cuenta.
-* @param numero_cuenta: Numero de cuenta a buscar.
-* @return: Puntero a la cuenta bancaria encontrada, o NULL si no se encuentra.
+ * Busca una cuenta bancaria por su numero de cuenta.
+ * @param numero_cuenta: Numero de cuenta a buscar.
+ * @return: Puntero a la cuenta bancaria encontrada, o NULL si no se encuentra.
 */
 CuentaBancaria* buscar_cuenta_por_numero(const char *numero_cuenta);
 

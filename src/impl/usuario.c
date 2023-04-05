@@ -2,12 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
+
 #include "../dec/cliente.h"
 #include "../dec/usuario.h"
 #include "../dec/db.h"
 #include "../dec/cuenta.h"
 #include "../dec/transaccion.h"
 #include "../dec/usuario.h"
+
 
 Usuario *crear_usuario(int usuarioID, char *nombreUsuario, char *contrasena, TipoUsuario tipo, void *datos)
 {
@@ -67,4 +70,228 @@ void liberar_usuario(Usuario *usuario)
     {
         free(usuario);
     }
+}
+
+void temporizador_pantalla_inicial()
+{
+    // system("cls");
+    // printf("Descargando actualizaciones.");
+    // wait(0.7);
+    // system("cls");
+    // printf("Descargando actualizaciones..");
+    // wait(0.7);
+    // system("cls");
+    // printf("Descargando actualizaciones...");
+    // wait(0.7);
+    // system("cls");
+    // printf("Inicializando  DeustoBank.");
+    // wait(0.7);
+    // system("cls");
+    // printf("Inicializando  DeustoBank..");
+    // wait(0.7);
+    // system("cls");
+    // printf("Inicializando  DeustoBank...");
+    // wait(0.7);
+    // system("cls");
+}
+
+void temporizador_carga_inicio_sesion()
+{
+    // system("cls");
+    // printf("Cargando inicio de sesion.");
+    // wait(0.7);
+    // system("cls");
+    // printf("Cargando inicio de sesion..");
+    // wait(0.7);
+    // system("cls");
+    // printf("Cargando inicio de sesion...");
+    // wait(0.7);
+    // system("cls");
+    // printf("Cargando inicio de sesion.");
+    // wait(0.7);
+    // system("cls");
+    // printf("Cargando inicio de sesion..");
+    // wait(0.7);
+    // system("cls");
+    // printf("Cargando inicio de sesion...");
+    // wait(0.7);
+    // system("cls");
+}
+
+void temporizador_pantalla_registro()
+{
+    // system("cls");
+    // printf("Entrando en registro de usuarios.");
+    // wait(0.7);
+    // system("cls");
+    // printf("Entrando en registro de usuarios..");
+    // wait(0.7);
+    // system("cls");
+    // printf("Entrando en registro de usuarios...");
+    // wait(0.7);
+    // system("cls");
+    // printf("Entrando en registro de usuarios.");
+    // wait(0.7);
+    // system("cls");
+    // printf("Entrando en registro de usuarios..");
+    // wait(0.7);
+    // system("cls");
+    // printf("Entrando en registro de usuarios...");
+    // wait(0.7);
+    // system("cls");
+}
+
+void temporizador_registro_usuario()
+{
+    // system("cls");
+    // printf("Registrando usuario.");
+    // wait(0.7);
+    // system("cls");
+    // printf("Registrando usuario..");
+    // wait(0.7);
+    // system("cls");
+    // printf("Registrando usuario...");
+    // wait(0.7);
+    // system("cls");
+    // printf("Registrando usuario.");
+    // wait(0.7);
+    // system("cls");
+    // printf("Registrando usuario..");
+    // wait(0.7);
+    // system("cls");
+    // printf("Registrando usuario...");
+    // wait(0.7);
+    // system("cls");
+}
+void temporizador_inicio_sesion()
+{
+//     system("cls");
+//     printf("Iniciando sesion.");
+//     wait(0.7);
+//     system("cls");
+//     printf("Iniciando sesion..");
+//     wait(0.7);
+//     system("cls");
+//     printf("Iniciando sesion...");
+//     wait(0.7);
+//     system("cls");
+}
+void temporizador_salida()
+{
+//     system("cls");
+//     printf("Cerrando sesion.");
+//     wait(0.7);
+//     system("cls");
+//     printf("Cerrando sesion..");
+//     wait(0.7);
+//     system("cls");
+//     printf("Cerrando sesion...");
+//     wait(0.7);
+//     system("cls");
+//     printf("Saliendo.");
+//     wait(0.7);
+//     system("cls");
+//     printf("Saliendo..");
+//     wait(0.7);
+//     system("cls");
+//     printf("Saliendo...");
+//     wait(0.7);
+//     system("cls");
+//     printf("Gracias por utilizar DeustoBank, vuelva pronto");
+//     wait(0.7);
+//     system("cls");
+}
+void temporizador_crear_cuenta()
+{
+//     system("cls");
+//     printf("Creando cuenta.");
+//     wait(0.7);
+//     system("cls");
+//     printf("Creando cuenta..");
+//     wait(0.7);
+//     system("cls");
+//     printf("Creando cuenta...");
+//     wait(0.7);
+//     system("cls");
+//     printf("Validando datos.");
+//     wait(0.7);
+//     system("cls");
+//     printf("Validando datos..");
+//     wait(0.7);
+//     system("cls");
+//     printf("Validando datos...");
+//     wait(0.7);
+//     system("cls");
+//     printf("Cuenta creada con exito");
+//     wait(0.7);
+//     system("cls");
+}
+void temporizador_mostrar_datos_cuenta()
+{
+    // system("cls");
+    // printf("Descargando datos del servidor.");
+    // wait(0.7);
+    // system("cls");
+    // printf("Descargando datos del servidor..");
+    // wait(0.7);
+    // system("cls");
+    // printf("Descargando datos del servidor...");
+    // wait(0.7);
+    // system("cls");
+}
+void temporizador_realizar_deposito()
+{
+//     system("cls");
+//     printf("Actualizando saldo.");
+//     wait(0.7);
+//     system("cls");
+//     printf("Actualizando saldo..");
+//     wait(0.7);
+//     system("cls");
+//     printf("Actualizando saldo...");
+//     wait(0.7);
+//     system("cls");
+}
+void temporizador_realizar_retiro()
+{
+//     system("cls");
+//     printf("Actualizando saldo.");
+//     wait(0.7);
+//     system("cls");
+//     printf("Actualizando saldo..");
+//     wait(0.7);
+//     system("cls");
+//     printf("Actualizando saldo...");
+//     wait(0.7);
+//     system("cls");
+//     printf("Esta operacion de retirada de efectivo es gratis para usted");
+//     wait(2.0);
+//     system("cls");
+}
+void temporizador_realizar_transferencia()
+{
+//     system("cls");
+//     printf("Realizando transferencia.");
+//     wait(0.7);
+//     system("cls");
+//     printf("Realizando transferencia..");
+//     wait(0.7);
+//     system("cls");
+//     printf("Realizando transferencia...");
+//     wait(0.7);
+//     system("cls");
+//     printf("Actualizando saldo.");
+//     wait(0.7);
+//     system("cls");
+//     printf("Actualizando saldo..");
+//     wait(0.7);
+//     system("cls");
+//     printf("Actualizando saldo...");
+//     wait(0.7);
+//     system("cls");
+}
+void wait(float seconds) {
+    // clock_t end_wait;
+    // end_wait = clock() + seconds * CLOCKS_PER_SEC;
+    // while (clock() < end_wait) {}
 }
