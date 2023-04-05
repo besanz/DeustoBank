@@ -86,24 +86,24 @@ int cliente_tiene_cuenta(int clienteID);
  * Menu Cliente sin Cuenta
  * @param cliente: Puntero a un objeto Cliente para el cual se muestra el menu.
  * @param usuario: Puntero a un objeto Usuario del cliente.
- */
+*/
 void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario);
 
 /*
-* Muestra el menu de opciones para un cliente que ya tiene una cuenta bancaria.
-* @param cliente: Puntero al objeto Cliente del cliente con cuenta.
-* @param usuario: Puntero al objeto Usuario del usuario asociado al cliente.
+ * Muestra el menu de opciones para un cliente que ya tiene una cuenta bancaria.
+ * @param cliente: Puntero al objeto Cliente del cliente con cuenta.
+ * @param usuario: Puntero al objeto Usuario del usuario asociado al cliente.
 */
 void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario);
 
 /*
-* Muestra la informacion de un cliente.
-* @param cliente: Puntero al objeto Cliente del cliente a mostrar la informacion.
+ * Muestra la informacion de un cliente.
+ * @param cliente: Puntero al objeto Cliente del cliente a mostrar la informacion.
 */
 void mostrar_informacion_cliente(Cliente *cliente);
 /*
-*Libera la memoria asignada a un objeto Cliente.
-*@param cliente: Puntero al objeto Cliente que se desea liberar de la memoria.
+ * Libera la memoria asignada a un objeto Cliente.
+ * @param cliente: Puntero al objeto Cliente que se desea liberar de la memoria.
 */
 void liberar_cliente(Cliente *cliente);
 

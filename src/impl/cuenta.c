@@ -40,7 +40,7 @@ void crear_cuenta(int clienteID) {
         return;
     }
 
-    const char *sql = "INSERT INTO cuentas (numeroCuenta, saldo, clienteID, codigoBIC) VALUES (?, 0, ?, DBANKSPAINSS);";
+    const char *sql = "INSERT INTO cuentas (numeroCuenta, saldo, clienteID, codigoBIC) VALUES (?, 0, ?, ?);";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     if (rc == SQLITE_OK) {
@@ -122,7 +122,7 @@ void depositar_dinero(int clienteID, float cantidad)
     }
     else
     {
-        printf("Por favor, introduzca una cantidad valida: %d\n", clienteID);
+        printf("\nPor favor, introduzca una cantidad valida: %d\n", clienteID);
     }
 }
 
@@ -152,7 +152,7 @@ void retirar_dinero(int clienteID, float cantidad)
     }
     else
     {
-        printf("Por favor, introduzca una cantidad valida.\n");
+        printf("\nPor favor, introduzca una cantidad valida.\n");
     }
 }
 
@@ -165,7 +165,7 @@ void transferir_dinero(int clienteID_origen, int clienteID_destino, float cantid
     db_transferir_dinero(clienteID_origen, clienteID_destino, cantidad);
     }else
     {
-        printf("Por favor, introduzca una cantidad valida.\n");
+        printf("\nPor favor, introduzca una cantidad valida.\n");
     }
 }
 

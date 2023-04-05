@@ -192,7 +192,7 @@ void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario)
         switch (opcion)
         {
         case 1:
-            printf("Por favor, verifica tu contrasena: ");
+            printf("\nPor favor, verifica tu contrasena: ");
             scanf("%s", contrasena);
             if (strcmp(contrasena, usuario->contrasena) == 0)
             {

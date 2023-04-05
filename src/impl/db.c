@@ -1138,6 +1138,7 @@ void guardar_informe_en_txt(Informe *informe, const char *nombre_cliente, int ye
     }
 
     fprintf(file, "Informe financiero del usuario %s\n", nombre_cliente);
+    fprintf(file, "-------------------------------\n");
     fprintf(file, "Numero de cuenta: %s\n", informe->numeroCuenta);
     fprintf(file, "Nombre del titular: %s\n", informe->nombreTitular);
 

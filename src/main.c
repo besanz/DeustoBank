@@ -35,10 +35,10 @@ void pantalla_inicio()
     do
     {
         printf("\nBienvenido a DeustoBank\n");
-        printf("1. Iniciar sesion\n");
+        printf("\n1. Iniciar sesion\n");
         printf("2. Registrarse\n");
         printf("3. Salir\n");
-        printf("Por favor, elige una opcion: ");
+        printf("\nPor favor, elige una opcion: ");
         scanf("%d", &opcion);
 
         switch (opcion)
@@ -94,11 +94,11 @@ void registro_usuario()
 {
     Cliente nuevo_cliente;
     Usuario nuevo_usuario;
-    ////temporizador_pantalla_registro();
+
     printf("\n--- Registro de nuevo cliente ---\n");
-    printf("Nombre de usuario: \n");
+    printf("\nNombre de usuario: ");
     scanf("%s", nuevo_usuario.nombreUsuario);
-    printf("Contrasena: \n");
+    printf("Contrasena: ");
     scanf("%s", nuevo_usuario.contrasena);
 
     if (db_existe_usuario(nuevo_usuario.nombreUsuario))
@@ -132,7 +132,7 @@ Usuario *inicio_sesion_usuario()
 
     char nombreUsuario[50], contrasena[50];
     printf("\n--- Inicio de sesion ---\n");
-    printf("Nombre de usuario: ");
+    printf("\nNombre de usuario: ");
     scanf("%s", nombreUsuario);
     printf("Contrasena: ");
     scanf("%s", contrasena);
@@ -152,7 +152,7 @@ Usuario *inicio_sesion_usuario()
         strcpy(usuario->contrasena, contrasena);
         usuario->tipo = usuario->tipo;
         usuario->datos = cliente;
-        printf("Inicio de sesion exitoso.\n");
+        printf("\nInicio de sesion exitoso.\n");
         return usuario;
     }
     else
@@ -169,11 +169,11 @@ void menu_administrador()
     do
     {
         system("cls");
-        printf("1. Gestionar clientes\n");
+        printf("\n1. Gestionar clientes\n");
         printf("2. Gestionar cuentas\n");
         printf("3. Gestionar transferencias\n");
         printf("4. Salir\n");
-        printf("Por favor, elija una opcion: ");
+        printf("\nPor favor, elija una opcion: ");
 
         scanf("%d", &opcion);
 
@@ -197,133 +197,3 @@ void menu_administrador()
         }
     } while (opcion != 4);
 }
-
-/*
-void menu_gestionar_clientes()
-{
-    int opcion;
-
-    do {
-        system("cls");
-        printf("1. Mostrar lista de clientes");
-        printf("2. Actualizar cliente\n");
-        printf("3. Eliminar cliente\n");
-        printf("4. Salir\n");
-        printf("Por favor, elija una opcion: ");
-
-        scanf("%d", &opcion);
-
-        switch (opcion) {
-            case 1:
-                
-                system("cls");
-                int tamanyo = get_numero_filas_cliente("SELECT * FROM Cliente");
-                Cliente * listaClientes= malloc(sizeof(Cliente)*tamanyo);
-                for (int i=0; i<tamanyo;i++){
-                    printf("Cliente %i- %s %s\n", listaClientes[i].clienteID, listaClientes[i].nombre, listaClientes[i].apellido);
-                }
-                free(listaClientes);
-                
-                break;
-            case 2:
-                //Falta terminar
-
-                Cliente *nuevo_cliente;
-                printf("Introduzca el id de cliente que quiera actualizar sus datos:\n");
-                scanf("%d", nuevo_cliente->clienteID);
-                printf("Introduzca los datos actualizados del cliente:\n");
-                printf("Nombre de usuario: ");
-                printf("Nombre: ");
-                scanf("%s", nuevo_cliente->nombre);
-                printf("Apellido: ");
-                scanf("%s", nuevo_cliente->apellido);
-                printf("DNI: ");
-                scanf("%s", nuevo_cliente->dni);
-                printf("Direccion: ");
-                scanf("%s", nuevo_cliente->direccion);
-                printf("Telefono: ");
-                scanf("%s", nuevo_cliente->telefono);
-                
-                //db_actualizar_cliente(nuevo_cliente->clienteID, nuevo_cliente, nuevo_usuario);
-                break;
-            case 3:
-                int id_eliminado;
-                printf("Introduzca el id del cliente que quiere eliminar: \n");
-                scanf("%i", id_eliminado);
-                Cliente *cliente_a_eliminar=buscar_cliente_por_id(id_eliminado);
-                eliminar_cliente(cliente_a_eliminar);
-                break;
-            case 4:
-                printf("Gracias por utilizar nuestro servicio.\n");
-                break;
-            default:
-                printf("Opcion invalida. Por favor, seleccione una opcion valida.\n");
-                break;
-        }
-    } while (opcion != 4);
-
-}
-*/
-/*
-void menu_gestionar_cuentas()
-{
-    int opcion;
-
-    do {
-        system("cls");
-        printf("1. Mostrar informacion de la cuenta\n");
-        printf("2. Eliminar cuenta\n");
-        printf("3. Salir\n");
-        printf("Por favor, elija una opcion: ");
-
-        scanf("%d", &opcion);
-
-        switch (opcion) {
-            case 1:
-                // Codigo para mostrar informacion de la cuenta
-                break;
-            case 2:
-                // Codigo para eliminar la cuenta
-                break;
-            case 3:
-                printf("Gracias por utilizar nuestro servicio.\n");
-                break;
-            default:
-                printf("Opcion invalida. Por favor, seleccione una opcion valida.\n");
-                break;
-        }
-    } while (opcion != 3);
-
-}
-void menu_gestionar_transacciones()
-{
-    int opcion;
-
-    do {
-        system("cls");
-        printf("1. Mostrar informe financiero\n");
-        printf("2. Eliminar transaccion\n");
-        printf("3. Salir\n");
-        printf("Por favor, elija una opcion: ");
-
-        scanf("%d", &opcion);
-
-        switch (opcion) {
-            case 1:
-                // Codigo para mostrar el informe financiero
-                break;
-            case 2:
-                // Codigo para eliminar una transaccion
-                break;
-            case 3:
-                printf("Gracias por utilizar nuestro servicio.\n");
-                break;
-            default:
-                printf("Opcion invalida. Por favor, seleccione una opcion valida.\n");
-                break;
-        }
-    } while (opcion != 3);
-
-}
-
-*/
