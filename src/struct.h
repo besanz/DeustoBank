@@ -63,7 +63,7 @@ typedef struct {
 // Estructura de datos para un informe financiero
 typedef struct {
     char numeroCuenta[20];
-    float saldoInicial;
+    char nombreTitular[20];
     float saldoFinal;
     int numDepositos;
     float totalDepositos;

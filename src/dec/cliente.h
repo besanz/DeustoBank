@@ -86,7 +86,7 @@ int cliente_tiene_cuenta(int clienteID);
  * Menu Cliente sin Cuenta
  * @param cliente: Puntero a un objeto Cliente para el cual se muestra el menu.
  * @param usuario: Puntero a un objeto Usuario del cliente.
-*/
+ */
 void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario);
 
 /*
@@ -101,22 +101,10 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario);
 * @param cliente: Puntero al objeto Cliente del cliente a mostrar la informacion.
 */
 void mostrar_informacion_cliente(Cliente *cliente);
-
-
-
-/*
- * Imprime un informe.
- * @param informe: Puntero al objeto Informe que se desea imprimir.
-*/
-void imprimir_informe(Informe *informe);
-
 /*
 *Libera la memoria asignada a un objeto Cliente.
 *@param cliente: Puntero al objeto Cliente que se desea liberar de la memoria.
 */
 void liberar_cliente(Cliente *cliente);
-
-
-
 
 #endif // CLIENTE_H

@@ -128,7 +128,6 @@ void mostrar_transacciones(Transaccion *transacciones, int num_transacciones)
 void mostrar_informe(Informe *informe)
 {
     printf("\nInforme financiero:\n");
-    printf("  Balance inicial: %.2f\n", informe->saldoInicial);
     printf("  Balance final: %.2f\n", informe->saldoFinal);
     printf("  Total depositado: %.2f\n", informe->totalDepositos);
     printf("  Total retirado: %.2f\n", informe->totalRetiros);
@@ -284,10 +283,14 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
             }
             break;
         case 7:
-            informe = mostrar_informe_financiero(cuenta->numeroCuenta);
+            informe = generar_informe_financiero(cliente->clienteID);
             if (informe != NULL)
             {
-                mostrar_informe(informe);
+                
+                // Guardar informe en un archivo .txt
+                guardar_informe_en_txt(informe, cuenta->cliente->nombre, 2023);
+
+                // Liberar memoria del informe
                 free(informe);
             }
             else
@@ -316,26 +319,6 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
     }
 }
 
-void imprimir_informe(Informe *informe)
-{
-    if (informe == NULL)
-    {
-        printf("Informe no encontrado.\n");
-        return;
-    }
-
-    printf("Numero de cuenta: %s\n", informe->numeroCuenta);
-    printf("Saldo inicial: %.2f\n", informe->saldoInicial);
-    printf("Saldo final: %.2f\n", informe->saldoFinal);
-    printf("Numero de depositos: %d\n", informe->numDepositos);
-    printf("Total depositos: %.2f\n", informe->totalDepositos);
-    printf("Numero de retiros: %d\n", informe->numRetiros);
-    printf("Total retiros: %.2f\n", informe->totalRetiros);
-    printf("Numero de transferencias enviadas: %d\n", informe->numTransferenciasEnviadas);
-    printf("Total transferencias enviadas: %.2f\n", informe->totalTransferenciasEnviadas);
-    printf("Numero de transferencias recibidas: %d\n", informe->numTransferenciasRecibidas);
-    printf("Total transferencias recibidas: %.2f\n", informe->totalTransferenciasRecibidas);
-}
 
 void liberar_cliente(Cliente *cliente)
 {

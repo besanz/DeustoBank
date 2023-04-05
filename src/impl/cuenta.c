@@ -139,7 +139,7 @@ void retirar_dinero(int clienteID, float cantidad)
 
         if (cuenta->saldo < cantidad)
         {
-            printf("Saldo insuficiente para realizar la transacción.\n");
+            printf("Saldo insuficiente para realizar la transaccion.\n");
             free(cuenta);
             return;
         }

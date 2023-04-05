@@ -19,7 +19,7 @@ int abrir_db(sqlite3 **db)
         return 1;
     }
 
-    sqlite3_busy_timeout(*db, 5000); // Agregar esta línea para establecer el tiempo de espera en 5000 ms (5 segundos)
+    sqlite3_busy_timeout(*db, 5000); // Agregar esta linea para establecer el tiempo de espera en 5000 ms (5 segundos)
 
     return 0;
 }
@@ -362,7 +362,7 @@ int db_obtener_usuarioID(const char *nombreUsuario)
     }
     else
     {
-        printf("No se encontro ningún registro para el usuario: %s\n", nombreUsuario); // Agregue esta línea
+        printf("No se encontro ningun registro para el usuario: %s\n", nombreUsuario); // Agregue esta linea
     }
 
     // Finalizar el statement y cerrar la base de datos
@@ -529,7 +529,7 @@ void db_transferir_dinero(int clienteID_origen, int clienteID_destino, float can
     db_retirar_dinero(clienteID_origen, cantidad);
     db_depositar_dinero(clienteID_destino, cantidad);
 
-    if (clienteID_origen != 0 && clienteID_destino != 0 && cantidad != 0) 
+    if (clienteID_origen != 0 && clienteID_destino != 0 && cantidad != 0)
     {
         time_t fecha = time(NULL);
         db_agregar_transaccion_por_clienteID(clienteID_origen, clienteID_destino, cantidad, fecha, TRANSFERENCIA);
@@ -545,7 +545,8 @@ void db_cerrar_cuenta(int clienteID)
     }
 
     CuentaBancaria *cuenta = db_buscar_cuenta_por_clienteID(clienteID);
-    if (cuenta == NULL) {
+    if (cuenta == NULL)
+    {
         cerrar_db(db);
         return;
     }
@@ -655,7 +656,8 @@ CuentaBancaria *db_buscar_cuenta_por_numero(const char *numero_cuenta)
     return cuenta;
 }
 
-CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID){
+CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID)
+{
     sqlite3 *db;
     sqlite3_stmt *stmt;
     CuentaBancaria *cuenta = NULL;
@@ -712,7 +714,7 @@ void db_agregar_transaccion(const char *numeroCuentaOrigen, const char *numeroCu
         fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
         return;
     }
-    
+
     rc = sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION;", 0, 0, 0);
     if (rc != SQLITE_OK)
     {
@@ -948,7 +950,6 @@ void db_depositar_dinero(int clienteID, float cantidad)
     }
     sqlite3_finalize(stmt);
 
-
     sqlite3_exec(db, "COMMIT;", 0, 0, 0);
     cerrar_db(db);
 }
@@ -960,9 +961,11 @@ void db_agregar_transaccion_por_clienteID(int clienteIDOrigen, int clienteIDDest
 
     if (cuentaOrigen == NULL || cuentaDestino == NULL)
     {
-        fprintf(stderr, "Error al obtener números de cuenta para los clientes especificados.\n");
-        if (cuentaOrigen != NULL) free(cuentaOrigen);
-        if (cuentaDestino != NULL) free(cuentaDestino);
+        fprintf(stderr, "Error al obtener numeros de cuenta para los clientes especificados.\n");
+        if (cuentaOrigen != NULL)
+            free(cuentaOrigen);
+        if (cuentaDestino != NULL)
+            free(cuentaDestino);
         return;
     }
 
@@ -979,7 +982,7 @@ void db_agregar_transaccion_por_clienteID(int clienteIDOrigen, int clienteIDDest
         return;
     }
 
-    // Comenzar la transacción
+    // Comenzar la transaccion
     rc = sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION;", 0, 0, 0);
     if (rc != SQLITE_OK)
     {
@@ -1011,16 +1014,16 @@ void db_agregar_transaccion_por_clienteID(int clienteIDOrigen, int clienteIDDest
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE)
     {
-        fprintf(stderr, "Error al insertar la transacción: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "Error al insertar la transaccion: %s\n", sqlite3_errmsg(db));
     }
 
     sqlite3_finalize(stmt);
 
-    // Confirmar la transacción
+    // Confirmar la transaccion
     rc = sqlite3_exec(db, "COMMIT;", 0, 0, 0);
     if (rc != SQLITE_OK)
     {
-        fprintf(stderr, "Error al confirmar la transacción: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "Error al confirmar la transaccion: %s\n", sqlite3_errmsg(db));
     }
 
     cerrar_db(db);
@@ -1028,33 +1031,19 @@ void db_agregar_transaccion_por_clienteID(int clienteIDOrigen, int clienteIDDest
     free(cuentaDestino);
 }
 
-Informe *db_mostrar_informe_financiero(const char *numero_cuenta)
+Informe *generar_informe_financiero(int clienteID)
 {
-    sqlite3 *db;
-    sqlite3_stmt *stmt;
-    const char *sql = "SELECT numero_cuenta, saldo_inicial, saldo_final, COUNT(tipo) as num_transacciones, SUM(cantidad) as total_cantidad, tipo FROM transacciones WHERE numero_cuenta = ? GROUP BY tipo";
-    int rc;
-
-    rc = sqlite3_open("deustobank.db", &db);
-    if (rc != SQLITE_OK)
+    CuentaBancaria *cuenta = db_buscar_cuenta_por_clienteID(clienteID);
+    if (cuenta == NULL)
     {
-        fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "Error al obtener cuenta bancaria para el cliente especificado.\n");
         return NULL;
     }
-
-    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
-    if (rc != SQLITE_OK)
-    {
-        fprintf(stderr, "No se puede preparar la declaracion: %s\n", sqlite3_errmsg(db));
-        return NULL;
-    }
-
-    sqlite3_bind_text(stmt, 1, numero_cuenta, -1, SQLITE_TRANSIENT);
 
     Informe *informe = malloc(sizeof(Informe));
-    snprintf(informe->numeroCuenta, sizeof(informe->numeroCuenta), "%s", numero_cuenta);
-    informe->saldoInicial = 0;
-    informe->saldoFinal = 0;
+    snprintf(informe->numeroCuenta, sizeof(informe->numeroCuenta), "%s", cuenta->numeroCuenta);
+    snprintf(informe->nombreTitular, sizeof(informe->nombreTitular), "%s", cuenta->cliente->nombre);
+    informe->saldoFinal = cuenta->saldo;
     informe->numDepositos = 0;
     informe->totalDepositos = 0;
     informe->numRetiros = 0;
@@ -1064,38 +1053,108 @@ Informe *db_mostrar_informe_financiero(const char *numero_cuenta)
     informe->numTransferenciasRecibidas = 0;
     informe->totalTransferenciasRecibidas = 0;
 
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT tipo, COUNT(tipo) as num_transacciones, SUM(importe) as total_cantidad, numeroCuentaOrigen FROM transacciones WHERE numeroCuentaOrigen = ? OR numeroCuentaDestino = ? GROUP BY tipo, numeroCuentaOrigen";
+    int rc;
+
+    rc = sqlite3_open("deustobank.db", &db);
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        free(cuenta);
+        free(informe);
+        return NULL;
+    }
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "No se puede preparar la declaracion: %s\n", sqlite3_errmsg(db));
+        free(cuenta);
+        free(informe);
+        return NULL;
+    }
+
+    sqlite3_bind_text(stmt, 1, cuenta->numeroCuenta, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, cuenta->numeroCuenta, -1, SQLITE_TRANSIENT);
+
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
     {
-        const unsigned char *tipo = sqlite3_column_text(stmt, 5);
-        int num_transacciones = sqlite3_column_int(stmt, 3);
-        float total_cantidad = (float)sqlite3_column_double(stmt, 4);
+        int tipo = sqlite3_column_int(stmt, 0);
+        int num_transacciones = sqlite3_column_int(stmt, 1);
+        float total_cantidad = (float)sqlite3_column_double(stmt, 2);
+        const unsigned char *numeroCuentaOrigen = (const char *)sqlite3_column_text(stmt, 3);
 
-        if (strcmp((const char *)tipo, "deposito") == 0)
+        if (tipo == 0)
         {
             informe->numDepositos = num_transacciones;
             informe->totalDepositos = total_cantidad;
         }
-        else if (strcmp((const char *)tipo, "retiro") == 0)
+        else if (tipo == 2)
         {
             informe->numRetiros = num_transacciones;
             informe->totalRetiros = total_cantidad;
         }
-        else if (strcmp((const char *)tipo, "transferencia_enviada") == 0)
+        else if (tipo == 1)
         {
-            informe->numTransferenciasEnviadas = num_transacciones;
-            informe->totalTransferenciasEnviadas = total_cantidad;
-        }
-        else if (strcmp((const char *)tipo, "transferencia_recibida") == 0)
-        {
-            informe->numTransferenciasRecibidas = num_transacciones;
-            informe->totalTransferenciasRecibidas = total_cantidad;
+            const unsigned char *numeroCuentaOrigen = (const char *)sqlite3_column_text(stmt, 3);
+            if (strcmp(numeroCuentaOrigen, cuenta->numeroCuenta) == 0)
+            {
+                informe->numTransferenciasEnviadas = num_transacciones;
+                informe->totalTransferenciasEnviadas = total_cantidad;
+            }
+            else
+            {
+                informe->numTransferenciasRecibidas = num_transacciones;
+                informe->totalTransferenciasRecibidas = total_cantidad;
+            }
         }
     }
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
 
+    free(cuenta);
     return informe;
+}
+
+void guardar_informe_en_txt(Informe *informe, const char *nombre_cliente, int year)
+{
+    if (informe == NULL)
+    {
+        fprintf(stderr, "Informe no valido.\n");
+        return;
+    }
+
+    char filename[256];
+    snprintf(filename, sizeof(filename), "InformeFinanciero_%s%d.txt", nombre_cliente, year);
+
+    FILE *file = fopen(filename, "w");
+    if (file == NULL)
+    {
+        fprintf(stderr, "Error al crear el archivo de informe financiero.\n");
+        return;
+    }
+
+    fprintf(file, "Informe financiero del usuario %s\n", nombre_cliente);
+    fprintf(file, "Numero de cuenta: %s\n", informe->numeroCuenta);
+    fprintf(file, "Nombre del titular: %s\n", informe->nombreTitular);
+
+    fprintf(file, "Saldo actual: %.2f\n", informe->saldoFinal);
+    fprintf(file, "Numero de depositos: %d\n", informe->numDepositos);
+    fprintf(file, "Total depositos: %.2f\n", informe->totalDepositos);
+    fprintf(file, "Numero de retiros: %d\n", informe->numRetiros);
+    fprintf(file, "Total retiros: %.2f\n", informe->totalRetiros);
+    fprintf(file, "Numero de transferencias enviadas: %d\n", informe->numTransferenciasEnviadas);
+    fprintf(file, "Total transferencias enviadas: %.2f\n", informe->totalTransferenciasEnviadas);
+    fprintf(file, "Numero de transferencias recibidas: %d\n", informe->numTransferenciasRecibidas);
+    fprintf(file, "Total transferencias recibidas: %.2f\n", informe->totalTransferenciasRecibidas);
+
+    printf("\nInforme Enviado. Revise su bandeja de entrada.\n");
+
+
+    fclose(file);
 }
 
 /*int get_numero_de_clientes(char sql[]){
@@ -1126,3 +1185,60 @@ Informe *db_mostrar_informe_financiero(const char *numero_cuenta)
     }
     return numFilas;
 }*/
+
+/*
+int contarLineasCliente()
+{
+    sqlite3 *db;
+    char *zErrMsg = 0;
+    int rc;
+    const char *sql;
+    int usuarioID = -1;
+
+    // Abrir la base de datos
+    rc = sqlite3_open("deustobank.db", &db);
+    if (rc)
+    {
+        fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+
+    // Preparar la consulta SQL
+    sql = "SELECT COUNT(*) FROM clientes";
+
+    // Preparar el statement
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "Error al preparar la declaracion SQL: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return -1;
+    }
+
+    // Vincular el valor del nombre de usuario al statement
+    sqlite3_bind_text(stmt, 1, nombreUsuario, -1, SQLITE_STATIC);
+
+    // Ejecutar la consulta y extraer el ID del usuario
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW)
+    {
+        usuarioID = sqlite3_column_int(stmt, 0);
+    }
+    else if (rc != SQLITE_DONE)
+    {
+        fprintf(stderr, "Error al ejecutar la consulta: %s\n", sqlite3_errmsg(db));
+    }
+    else
+    {
+        printf("No se encontro ningun registro para el usuario: %s\n", nombreUsuario); // Agregue esta linea
+    }
+
+    // Finalizar el statement y cerrar la base de datos
+    sqlite3_finalize(stmt);
+    cerrar_db(db);
+
+    return usuarioID;
+}
+
+*/

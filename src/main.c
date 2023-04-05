@@ -90,9 +90,6 @@ void pantalla_inicio()
     } while (opcion != 3);
 }
 
-
-
-
 void registro_usuario()
 {
     Cliente nuevo_cliente;
@@ -220,8 +217,8 @@ void menu_gestionar_clientes()
             case 1:
                 
                 system("cls");
-                int tamanyo=get_numero_filas_cliente("SELECT * FROM Cliente");
-                Cliente * listaClientes= malloc(sizeof(Cliente));
+                int tamanyo = get_numero_filas_cliente("SELECT * FROM Cliente");
+                Cliente * listaClientes= malloc(sizeof(Cliente)*tamanyo);
                 for (int i=0; i<tamanyo;i++){
                     printf("Cliente %i- %s %s\n", listaClientes[i].clienteID, listaClientes[i].nombre, listaClientes[i].apellido);
                 }

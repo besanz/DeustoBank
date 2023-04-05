@@ -175,6 +175,7 @@ void temporizador_inicio_sesion()
 //     printf("Iniciando sesion...");
 //     wait(0.7);
 //     system("cls");
+// 
 }
 void temporizador_salida()
 {

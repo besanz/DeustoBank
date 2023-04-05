@@ -22,12 +22,8 @@ Transaccion *listar_transacciones(const char *numero_cuenta, int *num_transaccio
  * @param id_transaccion: Identificador unico de la transaccion que se desea eliminar.
 */
 void eliminar_transaccion(int id_transaccion);
-/*
- * Genera un informe financiero para una cuenta especifica.
- * @param numero_cuenta: Numero de cuenta de la cual se desea generar el informe.
- * @return: Puntero a un objeto Informe que contiene la informacion financiera de la cuenta.
-*/
-Informe *mostrar_informe_financiero(const char *numero_cuenta);
+
+Informe *mostrar_informe_financiero(int clienteID);
 
 /*
  * Realiza una transferencia de fondos entre dos cuentas.

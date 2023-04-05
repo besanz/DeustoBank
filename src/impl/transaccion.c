@@ -21,10 +21,9 @@ void eliminar_transaccion(int id_transaccion){
     db_eliminar_transaccion(id_transaccion);
 }
 
-Informe *mostrar_informe_financiero(const char* numero_cuenta) {
-    char str_numero_cuenta[32];
-    snprintf(str_numero_cuenta, sizeof(str_numero_cuenta), "%d", numero_cuenta);
-    return db_mostrar_informe_financiero(str_numero_cuenta);
+Informe *mostrar_informe_financiero(int clienteID) {
+    Informe *informe = generar_informe_financiero(clienteID);
+    return informe;
 }
 
 void realizar_transferencia(int cliente_id_origen) {

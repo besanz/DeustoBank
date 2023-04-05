@@ -121,8 +121,8 @@ void db_cerrar_cuenta(int clienteID);
 CuentaBancaria *db_crear_cuenta(Cliente *titular);
 
 /*
- * Busca una cuenta bancaria en la base de datos por su número de cuenta.
- * @param numero_cuenta: Cadena de caracteres que representa el número de cuenta de la cuenta bancaria a buscar.
+ * Busca una cuenta bancaria en la base de datos por su numero de cuenta.
+ * @param numero_cuenta: Cadena de caracteres que representa el numero de cuenta de la cuenta bancaria a buscar.
  * @return Puntero a una estructura de tipo CuentaBancaria que representa la cuenta bancaria encontrada, o NULL si no se encuentra.
 */
 CuentaBancaria *db_buscar_cuenta_por_numero(const char *numero_cuenta);
@@ -142,52 +142,59 @@ CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID);
 CuentaBancaria *db_buscar_cuenta_por_clienteID(int clienteID);
 
 /*
- * Agrega una nueva transacción a la base de datos.
- * @param numeroCuentaOrigen: Cadena de caracteres que representa el número de cuenta origen de la transacción.
- * @param numeroCuentaDestino: Cadena de caracteres que representa el número de cuenta destino de la transacción.
- * @param importe: Cantidad de dinero involucrada en la transacción.
- * @param fecha: Marca de tiempo que representa la fecha y hora en que se realizó la transacción.
- * @param tipo: Enumeración que representa el tipo de transacción realizada (depósito, retiro, transferencia).
+ * Agrega una nueva transaccion a la base de datos.
+ * @param numeroCuentaOrigen: Cadena de caracteres que representa el numero de cuenta origen de la transaccion.
+ * @param numeroCuentaDestino: Cadena de caracteres que representa el numero de cuenta destino de la transaccion.
+ * @param importe: Cantidad de dinero involucrada en la transaccion.
+ * @param fecha: Marca de tiempo que representa la fecha y hora en que se realizo la transaccion.
+ * @param tipo: Enumeracion que representa el tipo de transaccion realizada (deposito, retiro, transferencia).
 */
 void db_agregar_transaccion(const char* numeroCuentaOrigen, const char* numeroCuentaDestino, float importe, time_t fecha, TipoTransaccion tipo);
 
 /*
- * Agrega una nueva transacción a la base de datos por los IDs de los clientes asociados a las cuentas de origen y destino.
- * @param clienteIDOrigen: Entero que representa el ID del cliente asociado a la cuenta de origen de la transacción.
- * @param clienteIDDestino: Entero que representa el ID del cliente asociado a la cuenta de destino de la transacción.
- * @param importe: Cantidad de dinero involucrada en la transacción.
- * @param fecha: Marca de tiempo que representa la fecha y hora en que se realizó la transacción.
- * @param tipo: Enumeración que representa el tipo de transacción realizada (depósito, retiro, transferencia).
+ * Agrega una nueva transaccion a la base de datos por los IDs de los clientes asociados a las cuentas de origen y destino.
+ * @param clienteIDOrigen: Entero que representa el ID del cliente asociado a la cuenta de origen de la transaccion.
+ * @param clienteIDDestino: Entero que representa el ID del cliente asociado a la cuenta de destino de la transaccion.
+ * @param importe: Cantidad de dinero involucrada en la transaccion.
+ * @param fecha: Marca de tiempo que representa la fecha y hora en que se realizo la transaccion.
+ * @param tipo: Enumeracion que representa el tipo de transaccion realizada (deposito, retiro, transferencia).
 */
 void db_agregar_transaccion_por_clienteID(int clienteIDOrigen, int clienteIDDestino, float importe, time_t fecha, TipoTransaccion tipo);
 
 /*
- * Registra una transacción en la base de datos.
- * @param transaccion: Puntero a una estructura de tipo Transaccion que representa la transacción a registrar.
+ * Registra una transaccion en la base de datos.
+ * @param transaccion: Puntero a una estructura de tipo Transaccion que representa la transaccion a registrar.
 */
 void db_registrar_transaccion(Transaccion* transaccion);
 
 /*
- * Elimina una transacción de la base de datos.
- * @param id_transaccion: Entero que representa el ID de la transacción a eliminar.
- * @return Entero que indica si la operación fue exitosa (1) o no (0).
+ * Elimina una transaccion de la base de datos.
+ * @param id_transaccion: Entero que representa el ID de la transaccion a eliminar.
+ * @return Entero que indica si la operacion fue exitosa (1) o no (0).
 */
 int db_eliminar_transaccion(int id_transaccion);
 
 /*
  * Lista todas las transacciones asociadas a una cuenta en particular.
- * @param numero_cuenta: Cadena de caracteres que representa el número de cuenta de la cual se desean listar las transacciones.
+ * @param numero_cuenta: Cadena de caracteres que representa el numero de cuenta de la cual se desean listar las transacciones.
  * @param num_transacciones: Puntero a un entero que representa la cantidad de transacciones encontradas.
  * @return Puntero a un array de estructuras de tipo Transaccion que contiene todas las transacciones asociadas a la cuenta especificada.
 */
 Transaccion *db_listar_transacciones(const char* numero_cuenta, int *num_transacciones);
 
 /*
- * Genera un informe financiero de la cuenta especificada.
- * @param numero_cuenta: Cadena de caracteres que representa el número de cuenta de la cual se desea generar el informe.
- * @return Puntero a una estructura de tipo Informe que contiene información detallada sobre la cuenta especificada, incluyendo un resumen de las transacciones realizadas.
+ * Genera un informe financiero para un cliente en particular.
+ * @param clienteID: Entero que representa el ID del cliente del cual se generara el informe financiero.
+ * @return: Puntero a una estructura de tipo Informe que contiene la informacion del informe financiero generado.
 */
-Informe *db_mostrar_informe_financiero(const char *numero_cuenta);
+Informe *generar_informe_financiero(int clienteID);
+/*
+ * Guarda un informe financiero en un archivo de texto.
+ * @param informe: Puntero a una estructura de tipo Informe que contiene la informacion del informe financiero a guardar.
+ * @param nombre_cliente: Cadena de caracteres que representa el nombre del cliente al que pertenece el informe financiero.
+ * @param year: Entero que representa el año del informe financiero.
+*/
+void guardar_informe_en_txt(Informe *informe, const char *nombre_cliente, int year);
 
 
 
