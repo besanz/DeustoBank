@@ -92,7 +92,7 @@ void realizar_transferencia(int cliente_id_origen) {
         return;
     }
 
-    db_transferir_dinero(cuenta_bancaria_origen->numeroCuenta, cuenta_bancaria_destino->numeroCuenta, cantidad);
+    db_transferir_dinero(cuenta_bancaria_origen->cliente->clienteID, cuenta_bancaria_destino->cliente->clienteID, cantidad);
 
     printf("Transferencia realizada con exito.\n");
 }

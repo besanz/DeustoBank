@@ -7,6 +7,8 @@
 #include "../dec/db.h"
 #include "../dec/cuenta.h"
 #include "../dec/transaccion.h"
+#include "../dec/usuario.h"
+#include "../dec/usuario.h"
 
 Cliente *iniciar_sesion(char *usuario, char *contrasena)
 {
@@ -52,14 +54,61 @@ Cliente *buscar_cliente_por_id(int id_cliente)
     return db_buscar_cliente_por_id(id_cliente);
 }
 
-void mostrar_info_cliente(Cliente *cliente)
+Cliente *buscar_cliente_por_cuenta(const char *numero_cuenta)
 {
-    printf("ID de cliente: %d\n", cliente->clienteID);
-    printf("Nombre: %s\n", cliente->nombre);
-    printf("Apellido: %s\n", cliente->apellido);
-    printf("Direccion: %s\n", cliente->direccion);
-    printf("Telefono: %s\n", cliente->telefono);
-    printf("DNI: %s\n", cliente->dni);
+    sqlite3 *db;
+    Cliente *cliente = NULL;
+
+    if (abrir_db(&db) != SQLITE_OK)
+    {
+        return NULL;
+    }
+
+    const char *sql = "SELECT c.clienteID, c.usuarioID, c.nombre, c.apellido, c.dni, c.direccion, c.telefono "
+                      "FROM clientes c "
+                      "JOIN cuentas cu ON c.clienteID = cu.clienteID "
+                      "WHERE cu.numeroCuenta = ?;";
+
+    sqlite3_stmt *stmt;
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK)
+    {
+        sqlite3_bind_text(stmt, 1, numero_cuenta, -1, SQLITE_TRANSIENT);
+
+        if (sqlite3_step(stmt) == SQLITE_ROW)
+        {
+            cliente = (Cliente *)malloc(sizeof(Cliente));
+            cliente->clienteID = sqlite3_column_int(stmt, 0);
+            cliente->usuarioID = sqlite3_column_int(stmt, 1);
+            strncpy(cliente->nombre, (const char *)sqlite3_column_text(stmt, 2), sizeof(cliente->nombre));
+            strncpy(cliente->apellido, (const char *)sqlite3_column_text(stmt, 3), sizeof(cliente->apellido));
+            strncpy(cliente->dni, (const char *)sqlite3_column_text(stmt, 4), sizeof(cliente->dni));
+            strncpy(cliente->direccion, (const char *)sqlite3_column_text(stmt, 5), sizeof(cliente->direccion));
+            strncpy(cliente->telefono, (const char *)sqlite3_column_text(stmt, 6), sizeof(cliente->telefono));
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    cerrar_db(db);
+    return cliente;
+}
+
+void mostrar_informacion_cliente(Cliente *cliente)
+{
+    if (cliente == NULL)
+    {
+        printf("Cliente no encontrado.\n");
+        return;
+    }
+    else
+    {
+        printf("\nInformacion del cliente:\n");
+        printf("ID de cliente: %d\n", cliente->clienteID);
+        printf("Nombre: %s\n", cliente->nombre);
+        printf("Apellido: %s\n", cliente->apellido);
+        printf("Direccion: %s\n", cliente->direccion);
+        printf("Telefono: %s\n", cliente->telefono);
+        printf("DNI: %s\n", cliente->dni);
+    }
 }
 
 void mostrar_transacciones(Transaccion *transacciones, int num_transacciones)
@@ -171,114 +220,97 @@ void menu_cliente_sin_cuenta(Cliente *cliente, Usuario *usuario)
 void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
 {
     int opcion;
-    CuentaBancaria *cuenta;
-    int num_transacciones;
-    Transaccion *transacciones;
-    Informe *informe;
-    cuenta = obtener_cuenta_por_clienteID(cliente->clienteID);
+    CuentaBancaria *cuenta = db_buscar_cuenta_por_clienteID(cliente->clienteID);
+    Transaccion *transacciones = NULL;
+    int num_transacciones = 0;
+    Informe *informe = NULL;
 
-    while (1)
+    do
     {
-        printf("\n");
-        printf("1. Mostrar informacion de la cuenta\n");
-        printf("2. Depositar dinero\n");
-        printf("3. Retirar dinero\n");
-        printf("4. Transferir dinero\n");
-        printf("5. Ver historial de transacciones\n");
-        printf("6. Ver informe financiero\n");
-        printf("7. Cerrar sesion\n");
-        printf("\nSeleccione una opcion: ");
+        printf("\nBienvenido al menu del cliente con cuenta\n");
+        printf("1. Mostrar informacion del cliente\n");
+        printf("2. Mostrar informacion de la cuenta\n");
+        printf("3. Depositar dinero\n");
+        printf("4. Retirar dinero\n");
+        printf("5. Realizar transferencia\n");
+        printf("6. Mostrar transacciones\n");
+        printf("7. Mostrar informe financiero\n");
+        printf("8. Cerrar cuenta\n");
+        printf("9. Salir\n");
+        printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
-
-        float cantidad;
-        char numeroCuentaDestino[27];
+        fflush(stdin);
 
         switch (opcion)
         {
         case 1:
-            mostrar_informacion_cuenta(cuenta->numeroCuenta);
+            mostrar_informacion_cliente(cliente);
             break;
         case 2:
-            printf("Introduzca la cantidad que desea depositar: ");
-            scanf("%f", &cantidad);
-            depositar_dinero(cuenta->numeroCuenta, cantidad);
+            mostrar_informacion_cuenta(cliente->clienteID);
             break;
         case 3:
-            printf("Introduzca la cantidad que desea retirar: ");
+        {
+            float cantidad = 0;
+            printf("Ingrese la cantidad a depositar: ");
             scanf("%f", &cantidad);
-            retirar_dinero(cuenta->numeroCuenta, cantidad);
-            break;
-        case 4:
-            realizar_transferencia(cliente->clienteID);
-            break;
-        case 5:
-            transacciones = listar_transacciones(cuenta->numeroCuenta, &num_transacciones);
-            mostrar_transacciones(transacciones, num_transacciones);
-            break;
-        case 6:
-            informe = mostrar_informe_financiero(cuenta->numeroCuenta);
-            imprimir_informe(informe);
-            break;
-        case 7:
-            printf("Cerrando sesion...\n");
-            return;
-        default:
-            printf("Opcion invalida. Por favor, seleccione una opcion valida.\n");
+            depositar_dinero(cliente->clienteID, cantidad);;
             break;
         }
-    }
-}
+        case 4:
+        {
+            float cantidad;
+            printf("Ingrese la cantidad a retirar: ");
+            scanf("%f", &cantidad);
+            retirar_dinero(cuenta->cliente->clienteID, cantidad);
+            break;
+        }
+        case 5:
+            realizar_transferencia(cliente->clienteID);
+            break;
+        case 6:
+            transacciones = listar_transacciones(cuenta->numeroCuenta, &num_transacciones);
+            if (transacciones != NULL)
+            {
+                mostrar_transacciones(transacciones, num_transacciones);
+                free(transacciones);
+            }
+            else
+            {
+                printf("No hay transacciones disponibles para mostrar.\n");
+            }
+            break;
+        case 7:
+            informe = mostrar_informe_financiero(cuenta->numeroCuenta);
+            if (informe != NULL)
+            {
+                mostrar_informe(informe);
+                free(informe);
+            }
+            else
+            {
+                printf("No se pudo generar el informe financiero.\n");
+            }
+            break;
+        case 8:
+            cerrar_cuenta(cuenta->cliente->clienteID);
+            printf("Cuenta cerrada exitosamente.\n");
+            menu_cliente_sin_cuenta(cliente, usuario);
+            break;
+        case 9:
+            printf("Saliendo del menu del cliente con cuenta...\n");
+            break;
+        default:
+            printf("Opcion no valida. Por favor, intente de nuevo.\n");
+            break;
+        }
+    } while (opcion != 9);
 
-void mostrar_informacion_cliente(Cliente *cliente)
-{
-    if (cliente == NULL)
+    // Liberar recursos
+    if (cuenta != NULL)
     {
-        printf("Cliente no encontrado.\n");
-        return;
+        free(cuenta);
     }
-
-    printf("ID del cliente: %d\n", cliente->clienteID);
-    printf("Nombre: %s %s\n", cliente->nombre, cliente->apellido);
-    printf("DNI: %s\n", cliente->dni);
-    printf("Direccion: %s\n", cliente->direccion);
-    printf("Telefono: %s\n", cliente->telefono);
-}
-
-CuentaBancaria *obtener_cuenta_por_clienteID(int clienteID)
-{
-    sqlite3 *db;
-    sqlite3_stmt *stmt;
-    CuentaBancaria *cuenta = NULL;
-
-    if (abrir_db(&db) != SQLITE_OK)
-    {
-        printf("Error al abrir la base de datos.\n");
-        return NULL;
-    }
-
-    const char *sql = "SELECT * FROM cuentas WHERE clienteID = ?";
-
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
-    {
-        printf("Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
-        cerrar_db(db);
-        return NULL;
-    }
-
-    sqlite3_bind_int(stmt, 1, clienteID);
-
-    if (sqlite3_step(stmt) == SQLITE_ROW)
-    {
-        cuenta = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
-        strncpy(cuenta->numeroCuenta, (const char *)sqlite3_column_text(stmt, 0), sizeof(cuenta->numeroCuenta));
-        cuenta->saldo = (float)sqlite3_column_double(stmt, 1);
-        cuenta->cliente = buscar_cliente_por_id(sqlite3_column_int(stmt, 2));
-        strncpy(cuenta->codigoBIC, (const char *)sqlite3_column_text(stmt, 3), sizeof(cuenta->codigoBIC));
-    }
-
-    sqlite3_finalize(stmt);
-    cerrar_db(db);
-    return cuenta;
 }
 
 void imprimir_informe(Informe *informe)
@@ -300,4 +332,12 @@ void imprimir_informe(Informe *informe)
     printf("Total transferencias enviadas: %.2f\n", informe->totalTransferenciasEnviadas);
     printf("Numero de transferencias recibidas: %d\n", informe->numTransferenciasRecibidas);
     printf("Total transferencias recibidas: %.2f\n", informe->totalTransferenciasRecibidas);
+}
+
+void liberar_cliente(Cliente *cliente)
+{
+    if (cliente != NULL)
+    {
+        free(cliente);
+    }
 }

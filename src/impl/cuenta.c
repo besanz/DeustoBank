@@ -1,11 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
 #include "../dec/cuenta.h"
 #include "../dec/db.h"
+#include "../dec/usuario.h"
+#include "../dec/cliente.h"
+
 
 void generar_numero_cuenta(char *numero_cuenta) {
-    srand(time(NULL));
+    static int initialized = 0;
+    if (!initialized) {
+        srand(time(NULL));
+        initialized = 1;
+    }
+
     const char *prefijo = "DEUSTOBNK";
     unsigned long long numero_aleatorio;
 
@@ -15,10 +25,10 @@ void generar_numero_cuenta(char *numero_cuenta) {
     } while (cuenta_existe(numero_cuenta));
 }
 
+
 void crear_cuenta(int clienteID) {
     char numero_cuenta[27];
-    char* codigoBIC = malloc(sizeof(char)*12);
-    codigoBIC = "DBANKSPAINSS";
+    char codigoBIC[12] = "DBANKSPAINSS";
     generar_numero_cuenta(numero_cuenta);
 
     sqlite3 *db;
@@ -49,7 +59,6 @@ void crear_cuenta(int clienteID) {
     } else {
         fprintf(stderr, "Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
     }
-    free(codigoBIC);
     sqlite3_finalize(stmt);
     cerrar_db(db);
 }
@@ -87,43 +96,62 @@ int cuenta_existe(const char *numero_cuenta) {
     return cuenta_encontrada;
 }
 
-void mostrar_informacion_cuenta(const char *numero_cuenta) 
+void mostrar_informacion_cuenta(int clienteID) 
 {
-    CuentaBancaria *cuenta = db_buscar_cuenta_por_numero(numero_cuenta);
+    CuentaBancaria *cuenta = db_buscar_cuenta_por_clienteID(clienteID);
     if (cuenta)
     {
-        printf("Numero de cuenta: %d\n", cuenta->numeroCuenta);
+        printf("Numero de cuenta: %s\n", cuenta->numeroCuenta);
         printf("Saldo: %.2f\n", cuenta->saldo);
         printf("Titular: %s %s\n", cuenta->cliente->nombre, cuenta->cliente->apellido);
     }
     else
     {
-        printf("No se encontro la cuenta con el numero %d\n", numero_cuenta);
+        printf("No se encontro la cuenta con el numero %s\n", cuenta->numeroCuenta);
     }
 }
 
-void depositar_dinero(const char * numero_cuenta, float cantidad)
+
+void depositar_dinero(int clienteID, float cantidad)
 {
-    db_depositar_dinero(numero_cuenta, cantidad);
+    CuentaBancaria *cuenta = db_buscar_cuenta_por_clienteID(clienteID);
+    printf("El duenyo es el: %s\n", cuenta->cliente->clienteID);
+    if (cuenta != NULL)
+    {
+        db_depositar_dinero(clienteID, cantidad);
+        free(cuenta); // Asegúrate de liberar la memoria después de su uso
+    }
+    else
+    {
+        printf("No se pudo encontrar la cuenta para el clienteID: %d\n", clienteID);
+    }
 }
 
-void retirar_dinero(const char* numero_cuenta, float cantidad)
+void retirar_dinero(int clienteID, float cantidad)
 {
-    db_retirar_dinero(numero_cuenta, cantidad);
+    db_retirar_dinero(clienteID, cantidad);
 }
 
-void transferir_dinero(const char* cuenta_origen, const char* cuenta_destino, float cantidad)
+
+void transferir_dinero(int clienteID_origen, int clienteID_destino, float cantidad)
 {
-    db_transferir_dinero(cuenta_origen, cuenta_destino, cantidad);
+    db_transferir_dinero(clienteID_origen, clienteID_destino, cantidad);
 }
 
-void cerrar_cuenta(const char* numero_cuenta)
+void cerrar_cuenta(int clienteID)
 {
-    db_cerrar_cuenta(numero_cuenta);
+    db_cerrar_cuenta(clienteID);
 }
 
 CuentaBancaria *buscar_cuenta_por_numero(const char *numero_cuenta)
 {
     return db_buscar_cuenta_por_numero(numero_cuenta);
 }
+
+CuentaBancaria *buscar_cuenta_por_clienteID(int clienteID)
+{
+    return db_buscar_cuenta_por_clienteID(clienteID);
+}
+
+
 

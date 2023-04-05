@@ -2,17 +2,25 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-
 #include "../dec/db.h"
+#include "../dec/usuario.h"
+
+#define BIC_CODE "DBANKSPAINSS"
+
 // Iniciar y cerrar conexion con base de datos
 int abrir_db(sqlite3 **db)
 {
-    int rc = sqlite3_open("deustobank.db", db);
+    int rc;
+
+    rc = sqlite3_open("deustobank.db", db);
     if (rc)
     {
         fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(*db));
-        return rc;
+        return 1;
     }
+
+    sqlite3_busy_timeout(*db, 5000); // Agregar esta línea para establecer el tiempo de espera en 5000 ms (5 segundos)
+
     return 0;
 }
 
@@ -69,12 +77,11 @@ void db_inicializar()
 
     // Crear la tabla de cuentas si no existe
     const char *sql_cuentas = "CREATE TABLE IF NOT EXISTS cuentas ("
-                            "numeroCuenta TEXT PRIMARY KEY,"
-                            "saldo REAL NOT NULL,"
-                            "clienteID INTEGER NOT NULL,"
-                            "codigoBIC TEXT NOT NULL,"
-                            "FOREIGN KEY (clienteID) REFERENCES clientes (clienteID));";
-
+                              "numeroCuenta TEXT PRIMARY KEY,"
+                              "saldo REAL NOT NULL,"
+                              "clienteID INTEGER NOT NULL,"
+                              "codigoBIC TEXT NOT NULL,"
+                              "FOREIGN KEY (clienteID) REFERENCES clientes (clienteID));";
 
     rc = sqlite3_exec(db, sql_cuentas, 0, 0, &zErrMsg);
     if (rc != SQLITE_OK)
@@ -102,7 +109,7 @@ void db_inicializar()
     }
 
     // Cerrar la base de datos
-    sqlite3_close(db);
+    cerrar_db(db);
 }
 
 void db_registrar_cliente(Cliente *nuevo_cliente, Usuario *nuevo_usuario)
@@ -348,7 +355,6 @@ int db_obtener_usuarioID(const char *nombreUsuario)
     if (rc == SQLITE_ROW)
     {
         usuarioID = sqlite3_column_int(stmt, 0);
-        printf("Usuario encontrado con ID: %d\n", usuarioID); // Agregue esta línea
     }
     else if (rc != SQLITE_DONE)
     {
@@ -356,12 +362,12 @@ int db_obtener_usuarioID(const char *nombreUsuario)
     }
     else
     {
-        printf("No se encontró ningún registro para el usuario: %s\n", nombreUsuario); // Agregue esta línea
+        printf("No se encontro ningún registro para el usuario: %s\n", nombreUsuario); // Agregue esta línea
     }
 
     // Finalizar el statement y cerrar la base de datos
     sqlite3_finalize(stmt);
-    sqlite3_close(db);
+    cerrar_db(db);
 
     return usuarioID;
 }
@@ -403,10 +409,6 @@ Usuario *db_validar_credenciales(const char *usuario, const char *contrasena)
                     free(usuario_validado);
                     usuario_validado = NULL;
                 }
-            }
-            else
-            {
-                // Si se requiere admitir otros tipos de usuarios, agregar aqui el codigo correspondiente.
             }
         }
 
@@ -497,7 +499,10 @@ int db_existe_usuario(const char *nombreUsuario)
     return existe;
 }
 
-void db_depositar_dinero(const char *numero_cuenta, float cantidad)
+
+
+
+void db_retirar_dinero(int clienteID, float cantidad)
 {
     sqlite3 *db;
     if (abrir_db(&db) != SQLITE_OK)
@@ -506,39 +511,12 @@ void db_depositar_dinero(const char *numero_cuenta, float cantidad)
     }
 
     sqlite3_exec(db, "BEGIN TRANSACTION;", 0, 0, 0);
-    const char *sql = "UPDATE cuentas SET saldo = saldo + ? WHERE numeroCuenta = ?";
+    const char *sql = "UPDATE cuentas SET saldo = saldo - ? WHERE clienteID = ?";
     sqlite3_stmt *stmt;
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK)
     {
         sqlite3_bind_double(stmt, 1, cantidad);
-        sqlite3_bind_text(stmt, 2, numero_cuenta, -1, SQLITE_TRANSIENT);
-        sqlite3_step(stmt);
-    }
-    sqlite3_finalize(stmt);
-
-    // Registra la transaccion de deposito en la base de datos
-    time_t fecha = time(NULL);
-    db_agregar_transaccion(numero_cuenta, numero_cuenta, cantidad, fecha, DEPOSITO);
-
-    sqlite3_exec(db, "COMMIT;", 0, 0, 0);
-    cerrar_db(db);
-}
-
-void db_retirar_dinero(const char *numero_cuenta, float cantidad)
-{
-    sqlite3 *db;
-    if (abrir_db(&db) != SQLITE_OK)
-    {
-        return;
-    }
-
-    sqlite3_exec(db, "BEGIN TRANSACTION;", 0, 0, 0);
-    const char *sql = "UPDATE cuentas SET saldo = saldo - ? WHERE numeroCuenta = ?";
-    sqlite3_stmt *stmt;
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK)
-    {
-        sqlite3_bind_double(stmt, 1, cantidad);
-        sqlite3_bind_text(stmt, 2, numero_cuenta, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 2, clienteID);
         sqlite3_step(stmt);
     }
     sqlite3_finalize(stmt);
@@ -546,34 +524,46 @@ void db_retirar_dinero(const char *numero_cuenta, float cantidad)
     cerrar_db(db);
 }
 
-void db_transferir_dinero(const char *cuenta_origen, const char *cuenta_destino, float cantidad)
-{
-    db_retirar_dinero(cuenta_origen, cantidad);
-    db_depositar_dinero(cuenta_destino, cantidad);
 
-    // Registrar las transacciones de retiro y depósito en la base de datos
+void db_transferir_dinero(int clienteID_origen, int clienteID_destino, float cantidad)
+{
+    db_retirar_dinero(clienteID_origen, cantidad);
+    db_depositar_dinero(clienteID_destino, cantidad);
+
     time_t fecha = time(NULL);
-    db_agregar_transaccion(cuenta_origen, cuenta_destino, cantidad, fecha, RETIRADA);
-    db_agregar_transaccion(cuenta_origen, cuenta_destino, cantidad, fecha, DEPOSITO);
+
+    if (clienteID_origen != 0 && clienteID_destino != 0 && cantidad != 0) 
+    {
+        db_agregar_transaccion_por_clienteID(clienteID_origen, clienteID_destino, cantidad, fecha, TRANSFERENCIA);
+        db_agregar_transaccion_por_clienteID(clienteID_origen, clienteID_destino, cantidad, fecha, TRANSFERENCIA);
+    }
 }
 
-
-void db_cerrar_cuenta(const char *numero_cuenta)
+void db_cerrar_cuenta(int clienteID)
 {
     sqlite3 *db;
     if (abrir_db(&db) != SQLITE_OK)
     {
         return;
     }
-    const char *sql = "DELETE FROM cuentas WHERE numeroCuenta = ?";
+
+    CuentaBancaria *cuenta = db_buscar_cuenta_por_clienteID(clienteID);
+    if (cuenta == NULL) {
+        cerrar_db(db);
+        return;
+    }
+
+    const char *sql = "DELETE FROM cuentas WHERE clienteID = ?";
     sqlite3_stmt *stmt;
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK)
     {
-        sqlite3_bind_text(stmt, 1, numero_cuenta, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 1, clienteID);
         sqlite3_step(stmt);
     }
     sqlite3_finalize(stmt);
     cerrar_db(db);
+
+    free(cuenta);
 }
 
 CuentaBancaria *db_crear_cuenta(Cliente *titular)
@@ -585,13 +575,14 @@ CuentaBancaria *db_crear_cuenta(Cliente *titular)
 
     abrir_db(&db);
 
-    sql = "INSERT INTO cuentas (numeroCuenta, saldo, clienteID, codigoBIC) VALUES (?, 0, ?, 'DBANKSPAINSS');";
+    sql = "INSERT INTO cuentas (numeroCuenta, saldo, clienteID, codigoBIC) VALUES (?, 0, ?, ?);";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
 
     if (rc != SQLITE_OK)
     {
         fprintf(stderr, "Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
+        cerrar_db(db);
         return NULL;
     }
 
@@ -599,6 +590,7 @@ CuentaBancaria *db_crear_cuenta(Cliente *titular)
     snprintf(numeroCuenta, sizeof(numeroCuenta), "DEUSTOBANK%016d", titular->clienteID);
     sqlite3_bind_text(stmt, 1, numeroCuenta, -1, SQLITE_STATIC);
     sqlite3_bind_int(stmt, 2, titular->clienteID);
+    sqlite3_bind_text(stmt, 3, BIC_CODE, -1, SQLITE_STATIC);
 
     rc = sqlite3_step(stmt);
 
@@ -610,14 +602,14 @@ CuentaBancaria *db_crear_cuenta(Cliente *titular)
         return NULL;
     }
     sqlite3_finalize(stmt);
-    cerrar_db(db);
 
     CuentaBancaria *nueva_cuenta = malloc(sizeof(CuentaBancaria));
     strcpy(nueva_cuenta->numeroCuenta, numeroCuenta);
     nueva_cuenta->saldo = 0;
     nueva_cuenta->cliente = titular;
-    strcpy(nueva_cuenta->codigoBIC, "DBANKSPAINSS");
+    strcpy(nueva_cuenta->codigoBIC, BIC_CODE);
 
+    cerrar_db(db);
     return nueva_cuenta;
 }
 
@@ -666,13 +658,14 @@ CuentaBancaria *db_buscar_cuenta_por_numero(const char *numero_cuenta)
     return cuenta;
 }
 
-CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID) {
+CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID){
     sqlite3 *db;
     sqlite3_stmt *stmt;
     CuentaBancaria *cuenta = NULL;
 
     int rc = sqlite3_open("deustobank.db", &db);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         printf("No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
         return NULL;
     }
@@ -680,7 +673,8 @@ CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID) {
     const char *sql = "SELECT cb.numeroCuenta, cb.saldo, cb.clienteID, cb.codigoBIC, cl.nombre, cl.apellido, cl.dni, cl.direccion, cl.telefono FROM cuentas cb INNER JOIN clientes cl ON cl.clienteID = cb.clienteID WHERE cb.clienteID = ?";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         printf("Error en la consulta: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         return NULL;
@@ -688,7 +682,8 @@ CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID) {
 
     sqlite3_bind_int(stmt, 1, clienteID);
 
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
         cuenta = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
         strncpy(cuenta->numeroCuenta, (const char *)sqlite3_column_text(stmt, 0), sizeof(cuenta->numeroCuenta));
         cuenta->saldo = (float)sqlite3_column_double(stmt, 1);
@@ -707,7 +702,6 @@ CuentaBancaria *db_buscar_cuenta_por_cliente(int clienteID) {
     return cuenta;
 }
 
-
 void db_agregar_transaccion(const char *numeroCuentaOrigen, const char *numeroCuentaDestino, float importe, time_t fecha, TipoTransaccion tipo)
 {
     sqlite3 *db;
@@ -718,16 +712,27 @@ void db_agregar_transaccion(const char *numeroCuentaOrigen, const char *numeroCu
     rc = abrir_db(&db);
     if (rc)
     {
-        printf("No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
         return;
     }
+    printf("\nHasta aqui bien 2\n");
+    // Comenzar la transaccion
+    rc = sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION;", 0, 0, 0);
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "Error al comenzar la transaccion: %s\n", sqlite3_errmsg(db));
+        cerrar_db(db);
+        return;
+    }
+    printf("\nHasta aqui bien 3");
 
     snprintf(sql, sizeof(sql), "INSERT INTO transacciones (numeroCuentaOrigen, numeroCuentaDestino, importe, fecha, tipo) VALUES (?, ?, ?, ?, ?);");
 
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     if (rc != SQLITE_OK)
     {
-        printf("No se puede preparar la consulta: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "No se puede preparar la consulta: %s\n", sqlite3_errmsg(db));
+        cerrar_db(db);
         return;
     }
 
@@ -740,10 +745,18 @@ void db_agregar_transaccion(const char *numeroCuentaOrigen, const char *numeroCu
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE)
     {
-        printf("Error al insertar la transaccion: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "Error al insertar la transaccion: %s\n", sqlite3_errmsg(db));
     }
 
     sqlite3_finalize(stmt);
+
+    // Confirmar la transaccion
+    rc = sqlite3_exec(db, "COMMIT;", 0, 0, 0);
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "Error al confirmar la transaccion: %s\n", sqlite3_errmsg(db));
+    }
+
     cerrar_db(db);
 }
 
@@ -779,7 +792,7 @@ void db_registrar_transaccion(Transaccion *transaccion)
 
     // Pasar fecha_str como argumento a sqlite3_bind_text en lugar de transaccion->fecha
     sqlite3_bind_text(stmt, 4, fecha_str, -1, SQLITE_TRANSIENT);
-    
+
     // Vincular el valor del tipo de transaccion
     sqlite3_bind_int(stmt, 5, transaccion->tipo);
 
@@ -873,6 +886,154 @@ Transaccion *db_listar_transacciones(const char *numero_cuenta, int *num_transac
 
     return transacciones;
 }
+CuentaBancaria *db_buscar_cuenta_por_clienteID(int clienteID)
+{
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    CuentaBancaria *cuenta = NULL;
+
+    int rc = sqlite3_open("deustobank.db", &db);
+    if (rc != SQLITE_OK)
+    {
+        printf("No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        return NULL;
+    }
+
+    const char *sql = "SELECT cb.*, c.* FROM cuentas cb INNER JOIN clientes c ON c.clienteID = cb.clienteID WHERE c.clienteID = ?";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK)
+    {
+        printf("Error en la consulta: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return NULL;
+    }
+
+    sqlite3_bind_int(stmt, 1, clienteID);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        cuenta = (CuentaBancaria *)malloc(sizeof(CuentaBancaria));
+        strncpy(cuenta->numeroCuenta, (const char *)sqlite3_column_text(stmt, 0), sizeof(cuenta->numeroCuenta));
+        cuenta->saldo = (float)sqlite3_column_double(stmt, 1);
+        cuenta->cliente = (Cliente *)malloc(sizeof(Cliente));
+        cuenta->cliente->clienteID = sqlite3_column_int(stmt, 3);
+        strncpy(cuenta->codigoBIC, (const char *)sqlite3_column_text(stmt, 4), sizeof(cuenta->codigoBIC));
+        strncpy(cuenta->cliente->nombre, (const char *)sqlite3_column_text(stmt, 6), sizeof(cuenta->cliente->nombre));
+        strncpy(cuenta->cliente->apellido, (const char *)sqlite3_column_text(stmt, 7), sizeof(cuenta->cliente->apellido));
+        strncpy(cuenta->cliente->dni, (const char *)sqlite3_column_text(stmt, 8), sizeof(cuenta->cliente->dni));
+        strncpy(cuenta->cliente->direccion, (const char *)sqlite3_column_text(stmt, 9), sizeof(cuenta->cliente->direccion));
+        strncpy(cuenta->cliente->telefono, (const char *)sqlite3_column_text(stmt, 10), sizeof(cuenta->cliente->telefono));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return cuenta;
+}
+
+void db_depositar_dinero(int clienteID, float cantidad)
+{
+    sqlite3 *db;
+    abrir_db(&db);
+
+    if (abrir_db(&db) != SQLITE_OK)
+    {
+        return;
+    }
+
+    sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION;", 0, 0, 0);
+    const char *sql = "UPDATE cuentas SET saldo = saldo + ? WHERE clienteID = ?";
+    sqlite3_stmt *stmt;
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK)
+    {
+        sqlite3_bind_double(stmt, 1, cantidad);
+        sqlite3_bind_int(stmt, 2, clienteID);
+        sqlite3_step(stmt);
+    }
+    sqlite3_finalize(stmt);
+
+    time_t fecha = time(NULL);
+    sqlite3_exec(db, "COMMIT;", 0, 0, 0);
+    cerrar_db(db);
+    
+    db_agregar_transaccion_por_clienteID(clienteID, clienteID, cantidad, fecha, DEPOSITO);
+}
+
+void db_agregar_transaccion_por_clienteID(int clienteIDOrigen, int clienteIDDestino, float importe, time_t fecha, TipoTransaccion tipo)
+{
+    CuentaBancaria *cuentaOrigen = db_buscar_cuenta_por_clienteID(clienteIDOrigen);
+    CuentaBancaria *cuentaDestino = db_buscar_cuenta_por_clienteID(clienteIDDestino);
+
+    if (cuentaOrigen == NULL || cuentaDestino == NULL)
+    {
+        fprintf(stderr, "Error al obtener números de cuenta para los clientes especificados.\n");
+        if (cuentaOrigen != NULL) free(cuentaOrigen);
+        if (cuentaDestino != NULL) free(cuentaDestino);
+        return;
+    }
+
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    int rc;
+
+    rc = abrir_db(&db);
+    if (rc)
+    {
+        fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        free(cuentaOrigen);
+        free(cuentaDestino);
+        return;
+    }
+
+    // Comenzar la transacción
+    rc = sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION;", 0, 0, 0);
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "Error al comenzar la transaccion: %s\n", sqlite3_errmsg(db));
+        cerrar_db(db);
+        free(cuentaOrigen);
+        free(cuentaDestino);
+        return;
+    }
+
+    const char *sql = "INSERT INTO transacciones (numeroCuentaOrigen, numeroCuentaDestino, importe, fecha, tipo) VALUES (?, ?, ?, ?, ?);";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "No se puede preparar la consulta: %s\n", sqlite3_errmsg(db));
+        cerrar_db(db);
+        free(cuentaOrigen);
+        free(cuentaDestino);
+        return;
+    }
+
+    sqlite3_bind_text(stmt, 1, cuentaOrigen->numeroCuenta, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, cuentaDestino->numeroCuenta, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_double(stmt, 3, importe);
+    sqlite3_bind_int64(stmt, 4, fecha);
+    sqlite3_bind_int(stmt, 5, tipo);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE)
+    {
+        fprintf(stderr, "Error al insertar la transacción: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+
+    // Confirmar la transacción
+    rc = sqlite3_exec(db, "COMMIT;", 0, 0, 0);
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "Error al confirmar la transacción: %s\n", sqlite3_errmsg(db));
+    }
+
+    cerrar_db(db);
+    free(cuentaOrigen);
+    free(cuentaDestino);
+}
+
 
 Informe *db_mostrar_informe_financiero(const char *numero_cuenta)
 {
