@@ -2,8 +2,8 @@
 #define CLIENTE_H
 
 #include <stdbool.h>
-#include "../dec/db.h"
-#include "../struct.h"
+#include "db.h"
+#include "../../struct.h"
 
 
 /*

@@ -1,15 +1,34 @@
-**DeustoBank - V1**
+**DeustoBank - V1.1**
 
 # Compilación:
-
 ```
-gcc src/main.c src/impl/cliente.c src/impl/cuenta.c src/impl/transaccion.c src/impl/db.c src/impl/usuario.c lib/sqlite3.c -o startbank -Isrc -Isrc/dec -ILib -DSQLITE_THREADSAFE=0
+g++ -c src/cpp/impl/socket_client.cpp -o obj/socket_client.o -Isrc/cpp/dec
+g++ -c src/cpp/impl/socket_server.cpp -o obj/socket_server.o -Isrc/cpp/dec 
+g++ -c src/cpp/impl/socket_handler.cpp -o obj/socket_handler.o -Isrc/cpp/dec -Isrc/c/dec 
+gcc -c src/c/impl/cliente.c -o obj/cliente.o -Isrc/c/dec -Ilib
+gcc -c src/c/impl/cuenta.c -o obj/cuenta.o -Isrc/c/dec -Ilib
+gcc -c src/c/impl/transaccion.c -o obj/transaccion.o -Isrc/c/dec -Ilib
+gcc -c src/c/impl/db.c -o obj/db.o -Isrc/c/dec -Ilib
+gcc -c src/c/impl/usuario.c -o obj/usuario.o -Isrc/c/dec -Ilib
+gcc -c lib/sqlite3.c -o obj/sqlite3.o -DSQLITE_THREADSAFE=0
+```
+
+# Servidor:
+```
+g++ -std=c++11 src/main.cpp obj/socket_client.o obj/socket_server.o obj/socket_handler.o obj/cliente.o obj/cuenta.o obj/transaccion.o obj/db.o obj/usuario.o obj/sqlite3.o -o DeustoBank.exe -lws2_32
+```
+
+# Cliente:
+```
+g++ -std=c++11 src/cpp/impl/client_main.cpp obj/socket_client.o -o client.exe -lws2_32
 ```
 
 # Ejecución:
 ```
-startbank.exe
+./DeustoBank.exe
+./client.exe
 ```
+
 # Usuarios Test (usuario, contraseña):
 
 - jose, jose

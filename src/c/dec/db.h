@@ -1,8 +1,8 @@
 #ifndef DB_H
 #define DB_H
 
-#include "../../lib/sqlite3.h"
-#include "../struct.h"
+#include "../../../lib/sqlite3_wrapper.h"
+#include "../../struct.h"
 
 /* 
  * Abre una conexion con una base de datos SQLite.

@@ -11,6 +11,180 @@
 #include "../dec/transaccion.h"
 #include "../dec/usuario.h"
 
+void pantalla_inicio()
+{
+    temporizador_pantalla_inicial();
+    int opcion;
+    Usuario *usuario;
+    Cliente *cliente;
+
+    do
+    {
+        printf("\nBienvenido a DeustoBank\n");
+        printf("\n1. Iniciar sesion\n");
+        printf("2. Registrarse\n");
+        printf("3. Salir\n");
+        printf("\nPor favor, elige una opcion: ");
+        scanf("%d", &opcion);
+
+
+        switch (opcion)
+        {
+        case 1:
+            temporizador_carga_inicio_sesion();
+            usuario = inicio_sesion_usuario();
+
+            if (usuario != NULL)
+            {
+                if (usuario->tipo == 1) //1 = ADMINISTRADOR
+                {
+                    temporizador_inicio_sesion();
+                    menu_administrador();
+                }
+                else
+                {
+                    temporizador_inicio_sesion();
+                    cliente = db_buscar_cliente_por_usuarioID(usuario->usuarioID);
+                    if (cliente != NULL)
+                    {
+                        if (cliente_tiene_cuenta(cliente->clienteID))
+                        {
+                            menu_cliente_con_cuenta(cliente, usuario);
+                        }
+                        else
+                        {
+                            menu_cliente_sin_cuenta(cliente, usuario);
+                        }
+                        free(cliente);
+                    }
+                    else
+                    {
+                        printf("Error al buscar el cliente asociado al usuario.\n");
+                    }
+                }
+                free(usuario);
+            }
+            break;
+        case 2:
+            registro_usuario();
+            break;
+        case 3:
+            temporizador_salida();
+            break;
+        default:
+            printf("Opcion invalida. Por favor, intente de nuevo.\n");
+            break;
+        }
+    } while (opcion != 3);
+}
+
+void registro_usuario()
+{
+    Cliente nuevo_cliente;
+    Usuario nuevo_usuario;
+
+    printf("\n---- Registro de nuevo cliente ----\n");
+    printf("\nNombre de usuario: ");
+    scanf("%s", nuevo_usuario.nombreUsuario);
+    printf("Contrasena: ");
+    scanf("%s", nuevo_usuario.contrasena);
+
+    if (db_existe_usuario(nuevo_usuario.nombreUsuario))
+    {
+        printf("El nombre de usuario ya existe. Por favor, elija otro.\n");
+        return;
+    }
+
+    printf("Nombre: ");
+    scanf("%s", nuevo_cliente.nombre);
+    printf("Apellido: ");
+    scanf("%s", nuevo_cliente.apellido);
+    printf("DNI: ");
+    scanf("%s", nuevo_cliente.dni);
+    printf("Direccion: ");
+    scanf("%s", nuevo_cliente.direccion);
+    printf("Telefono: ");
+    scanf("%s", nuevo_cliente.telefono);
+
+    // Registrar el nuevo usuario y obtener el ID de usuario generado
+    db_registrar_usuario(&nuevo_usuario);
+    nuevo_cliente.usuarioID = db_obtener_usuarioID(nuevo_usuario.nombreUsuario);
+    temporizador_registro_usuario();
+    // Pase el nuevo_usuario como argumento adicional
+    db_registrar_cliente(&nuevo_cliente, &nuevo_usuario);
+    printf("Cliente registrado exitosamente.\n");
+}
+
+Usuario *inicio_sesion_usuario()
+{
+
+    char nombreUsuario[50], contrasena[50];
+    printf("\n---- Inicio de Sesion ----\n");
+    printf("\nNombre de usuario: ");
+    scanf("%s", nombreUsuario);
+    printf("Contrasena: ");
+    scanf("%s", contrasena);
+
+    Usuario *usuario = db_validar_credenciales(nombreUsuario, contrasena);
+    Cliente *cliente = NULL;
+    if (usuario != NULL)
+    {
+        cliente = db_buscar_cliente_por_usuarioID(usuario->usuarioID);
+    }
+
+    if (cliente != NULL)
+    {
+        Usuario *usuario = (Usuario *)malloc(sizeof(Usuario));
+        usuario->usuarioID = cliente->clienteID;
+        strcpy(usuario->nombreUsuario, nombreUsuario);
+        strcpy(usuario->contrasena, contrasena);
+        usuario->tipo = usuario->tipo;
+        usuario->datos = cliente;
+        return usuario;
+    }
+    else
+    {
+        printf("Error: Credenciales invalidas o usuario no encontrado.\n");
+        return NULL;
+    }
+}
+
+void menu_administrador()
+{
+    int opcion;
+
+    do
+    {
+        system("cls");
+        printf("\n1. Gestionar clientes\n");
+        printf("2. Gestionar cuentas\n");
+        printf("3. Gestionar transferencias\n");
+        printf("4. Salir\n");
+        printf("\nPor favor, elija una opcion: ");
+
+        scanf("%d", &opcion);
+
+        switch (opcion)
+        {
+        case 1:
+            //menu_gestionar_clientes();
+            break;
+        case 2:
+            // menu_gestionar_cuentas_cliente();
+            break;
+        case 3:
+            // menu_gestionar_transferencias();
+            break;
+        case 4:
+            printf("Gracias por utilizar nuestro servicio.\n");
+            break;
+        default:
+            printf("Opcion invalida. Por favor, elija una opcion del menu.\n");
+            break;
+        }
+    } while (opcion != 4);
+}
+
 
 Usuario *crear_usuario(int usuarioID, char *nombreUsuario, char *contrasena, TipoUsuario tipo, void *datos)
 {
