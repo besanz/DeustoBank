@@ -23,13 +23,8 @@ void handle_client(SOCKET client_socket) {
         const char *response = "Mensaje recibido por el servidor.";
         send(client_socket, response, strlen(response), 0);
     }
-
-    if (recv_size == 0) {
-        std::cout << "Cliente desconectado." << std::endl;
-    } else {
-        std::cerr << "Error al recibir datos del cliente: " << strerror(errno) << std::endl;
-    }
-
+    
+    std::cout << "Cliente desconectado." << std::endl;
     closesocket(client_socket);
     
 }

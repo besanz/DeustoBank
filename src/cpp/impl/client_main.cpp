@@ -1,6 +1,14 @@
 #include <iostream>
 #include "../dec/socket_client.h"
 
+extern "C" {
+    #include "../../c/dec/cliente.h"
+    #include "../../c/dec/cuenta.h"
+    #include "../../c/dec/transaccion.h"
+    #include "../../c/dec/db.h"
+    #include "../../c/dec/usuario.h"
+}
+
 int main() {
     const char* ip_address = "127.0.0.1";
     int port = 8080;
@@ -18,6 +26,9 @@ int main() {
     if (recv_size > 0) {
         buffer[recv_size] = '\0';
         std::cout << "Respuesta del servidor: " << buffer << std::endl;
+        db_inicializar();
+        temporizador_pantalla_inicial();
+        pantalla_inicio();
     } else {
         std::cerr << "Error al recibir datos del servidor" << std::endl;
     }
