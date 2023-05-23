@@ -1,7 +1,7 @@
 #ifndef TRANSACCION_H
 #define TRANSACCION_H
 
-#include "../../struct.h"
+#include "../struct.h"
 
 /*
  * Registra una transaccion en el sistema.

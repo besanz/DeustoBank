@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "db.h"
-#include "../../struct.h"
+#include "../struct.h"
 
 
 /*

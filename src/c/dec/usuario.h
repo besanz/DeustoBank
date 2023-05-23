@@ -3,7 +3,7 @@
 
 #include <time.h>
 
-#include "../../struct.h"
+#include "../struct.h"
 
 /*
  * Crea un nuevo usuario con los datos proporcionados.
@@ -102,7 +102,7 @@ void temporizador_realizar_retiro();
 void temporizador_realizar_transferencia();
 void temporizador_menu_con_cuenta();
 
-void pantalla_inicio();
+int pantalla_inicio();
 
 void menu_administrador();
 

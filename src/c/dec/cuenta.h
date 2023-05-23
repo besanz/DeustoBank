@@ -1,7 +1,7 @@
 #ifndef CUENTA_H
 #define CUENTA_H
 
-#include "../../struct.h"
+#include "../struct.h"
 
 /*
 * Crea una nueva cuenta bancaria para un cliente.

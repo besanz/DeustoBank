@@ -11,7 +11,7 @@
 #include "../dec/transaccion.h"
 #include "../dec/usuario.h"
 
-void pantalla_inicio()
+int pantalla_inicio()
 {
     temporizador_pantalla_inicial();
     int opcion;
@@ -76,6 +76,7 @@ void pantalla_inicio()
             break;
         }
     } while (opcion != 3);
+    return opcion;
 }
 
 void registro_usuario()

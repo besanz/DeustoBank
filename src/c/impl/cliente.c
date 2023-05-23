@@ -339,8 +339,6 @@ void menu_cliente_con_cuenta(Cliente *cliente, Usuario *usuario)
     }
 }
 
-
-
 void liberar_cliente(Cliente *cliente)
 {
     if (cliente != NULL)
