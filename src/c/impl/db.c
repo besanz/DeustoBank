@@ -1154,7 +1154,7 @@ void guardar_informe_en_txt(Informe *informe, const char *nombre_cliente, int ye
     fprintf(file, "Total transferencias recibidas: %.2f\n", informe->totalTransferenciasRecibidas);
 
     printf("\nInforme Enviado. Revise su bandeja de entrada.\n");
-    wait(3);
+    //wait(3);
     system("cls");
 
     fclose(file);

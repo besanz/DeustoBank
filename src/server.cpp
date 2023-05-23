@@ -33,22 +33,56 @@ void interpretar(SOCKET ClientSocket, char *solicitud){
     vector<string> results;
     results=split(solicitud,';');
     for(int i =0; i<results.size()-1;i++){
-        cout<<results[i] <<endl;
+        cout<<results[i]<<endl;
     }
-    cout<<"\n"<<endl;
+    
 
     const int opcion= stoi(results[0]);
     const int empezar=0;
+    const int inicioSesion=1;
+    const int registro=2;
+    const int validarUser=11;
+    
+    //Aqui empieza el menu
     switch(opcion){
         case empezar:
             //Para responder al cliente: send(ClientSocket, respuesta, strlen(respuesta), 0);
             enviarMenuInicial(ClientSocket);
+            break;
+        case inicioSesion:
+            send(ClientSocket, (char *)"Introduzca usuario y contrasena con el siguiente formato: \n 11;Usuario;Contrasenya;", strlen((char *)"Introduzca usuario y contrasena con el siguiente formato: \n 11;Usuario;Contrasenya;"), 0);   
+            break; 
+            
+        case registro:
 
             break;
-    
+                
+        case validarUser: 
+            char* user = new char[results[1].length() + 1];
+            strcpy(user, (results[1].c_str()));
+
+            char* contra = new char[results[2].length() + 1];
+            strcpy(contra, (results[2].c_str()));
+
+            Usuario* usu= db_validar_credenciales(user,contra);
+            
+            
+            if(usu!=nullptr){
+                //enviarMenuUsuario(ClientSocket);
+                cout<<"Coge bien el usuario"<<endl;
+            }
+            else {
+                //send(ClientSocket, (char *)"Contraseña o usuario incorrecto. \n Introduzca usuario y contrasenya con el siguiente formato: \n 11;Usuario;Contrasenya",strlen((char *)"Contraseña o usuario incorrecto. \n Introduzca usuario y contrasenya con el siguiente formato: \n 11;Usuario;Contrasenya"), 0);
+                cout<<"No coge bien el usuario"<<endl;
+            } 
+        break;
     }
+    
+    
+   
 
 }
+
 
 int main(int argc, char* argv[]) 
 {

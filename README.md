@@ -24,6 +24,14 @@ g++ -std=c++11 src/main.cpp obj/socket_client.o obj/socket_server.o obj/cliente.
 ```
 g++ -std=c++11 src/cpp/impl/client_main.cpp obj/socket_client.o obj/db.o obj/cliente.o obj/cuenta.o obj/transaccion.o obj/usuario.o obj/sqlite3.o -o client.exe -lws2_32
 ```
+# ServidorCpp:
+```
+g++ server.cpp cpp/impl/menu.cpp cpp/impl/Split.cpp c/impl/db.o ../lib/sqlite3.o c/impl/transaccion.o c/impl/cliente.o c/impl/cuenta.o c/impl/usuario.o -o servidor -lws2_32
+```
+# ClienteCpp:
+```
+g++ client.cpp cpp/impl/socket.cpp -o cliente -lws2_32
+```
 
 # Ejecución:
 ```
