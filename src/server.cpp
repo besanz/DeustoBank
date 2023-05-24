@@ -27,16 +27,15 @@ extern "C"{
 
 using namespace std;
 
-void interpretar(SOCKET ClientSocket, char *solicitud){
+void interpretar(SOCKET ClientSocket, char *solicitud){ 
     Usuario* us;
     Cliente* cli;
+    Cliente* destinatario;
+    CuentaBancaria* cb;
+    Informe* informe;
+
     vector<string> results;
     results=split(solicitud,';');
-    for(int i =0; i<results.size()-1;i++){
-        cout<<results[i]<<endl;
-    }
-    char* user;
-    char* datos;
     const int opcion= stoi(results[0]);
     const int volver=99;
     const int empezar=0;
@@ -47,11 +46,15 @@ void interpretar(SOCKET ClientSocket, char *solicitud){
     const int mostrarInformacionCliente=21;
     const int mostrarInformacionCuenta=22;
     const int depositar=23;
+    const int realizarDeposito=231;
     const int retirar=24;
-    const int transferencia=24;
+    const int realizarRetiro=241;
+    const int transferencia=25;
+    const int realizarTransferencia=251;
     const int mostrarTransacciones=26;
     const int imprimirInformeFinanciero=27;
     const int cerrarCuenta=28;
+    
 
     //Aqui empieza el menu
     switch(opcion){
@@ -64,7 +67,7 @@ void interpretar(SOCKET ClientSocket, char *solicitud){
             break; 
             
         case registro:
-            send(ClientSocket, (char*)"Introduzca los datos con el siguiente formato:\n12;Nombre de usuario;Contrasena;Nombre;Apellido;DNI;Direccion;Telefono;", strlen((char*)"Introduzca los datos con el siguiente formato:\n21;Nombre;Apellido;DNI;Direccion;Telefono;"), 0);
+            send(ClientSocket, (char*)"Introduzca los datos con el siguiente formato:\n12;Nombre de usuario;Contrasena;Nombre;Apellido;DNI;Direccion;Telefono;", strlen((char*)"Introduzca los datos con el siguiente formato:\n12;Nombre;Apellido;DNI;Direccion;Telefono;"), 0);
             break;
         case registrar:
             strcpy(us->nombreUsuario, (results[1].c_str()));
@@ -83,47 +86,70 @@ void interpretar(SOCKET ClientSocket, char *solicitud){
             
             break;
         case validarUser: 
+            char user[50];
             strcpy(user, results[1].c_str());
+            printf("%s", user);
             int existe;
             existe = db_existe_usuario(user);
             if(existe==1){
-                
                 enviarMenuUsuario(ClientSocket);
             }else{
                 send(ClientSocket, (char *)"Contraseña o usuario incorrecto. \n Introduzca usuario y contrasenya con el siguiente formato: \n 11;Usuario;Contrasenya",strlen((char *)"Contraseña o usuario incorrecto. \n Introduzca usuario y contrasenya con el siguiente formato: \n 11;Usuario;Contrasenya"), 0);
             }
+            
             break;
         case volver:
             enviarMenuUsuario(ClientSocket);
             break;
         case mostrarInformacionCliente:
-            //us->usuarioID=db_obtener_usuarioID(results[1].c_str());
-            //mostrarCliente(ClientSocket, us);
-            /*strcpy(datos, cli->nombre);
-            strcat(datos,"\n");
-            strcat(datos, cli->apellido); 
-            strcat(datos,"\n");
-            strcat(datos, cli->dni);
-            strcat(datos,"\n");
-            strcat(datos, cli->direccion); 
-            strcat(datos,"\n"); 
-            strcat(datos, cli->telefono);
-        
-            // Asegurarse de que datos termine con el carácter nulo
-            datos[sizeof(datos) - 1] = '\0';
-            */
-            
+            char bufferCliente[500];
+            int usuarioID;
+            usuarioID=db_obtener_usuarioID(results[1].c_str());
+            cli=db_buscar_cliente_por_usuarioID(usuarioID);
+            // Formatea la información del cliente en el buffer
+            sprintf(bufferCliente, "Nombre: %s\nApellido: %s\nDNI: %s\nDireccion: %s\nTelefono: %s\n Para volver 99\n", cli->nombre, cli->apellido, cli->dni, cli->direccion, cli->telefono);
+
+            // Envía el buffer al socket
+            send(ClientSocket, bufferCliente, strlen(bufferCliente), 0);
             
             break;
         case mostrarInformacionCuenta:
-            CuentaBancaria* cuenta=db_buscar_cuenta_por_clienteID();
+            char bufferCuenta[500];
+            int usID;
+            usID=db_obtener_usuarioID(results[1].c_str());
+            cli=db_buscar_cliente_por_usuarioID(usID);
+            cb=db_buscar_cuenta_por_cliente(cli->clienteID);
+            sprintf(bufferCuenta, "Número de cuenta: %s\nSaldo: %.2f\nNombre del cliente: %s\n Para volver 99\n", cb->numeroCuenta, cb->saldo, cb->cliente->nombre);
+            send(ClientSocket, bufferCuenta, strlen(bufferCuenta), 0);
             
-       
-    }
-    
-    
-   
+            break;
+        case depositar:
+            int userID;
+            userID=db_obtener_usuarioID(results[1].c_str());
+            cli=db_buscar_cliente_por_usuarioID(userID);
+            enviarMenuDepositar(ClientSocket);
+            break;
+        case realizarDeposito:
+            //db_depositar_dinero();
+            break;
 
+        case imprimirInformeFinanciero:
+            char bufferInforme[500];
+            int uID;
+            uID = db_obtener_usuarioID(results[1].c_str());
+            cli = db_buscar_cliente_por_usuarioID(uID);
+            informe = generar_informe_financiero(cli->clienteID);
+
+            sprintf(bufferInforme, "Número de cuenta: %s\nNombre del titular: %s\n Saldo final: %.2f\n Numero de depositos: %d\n Total de depositos: %.2f\n Numero de retiros: %d\n Total de retiros: %.2f\n Numero de transferencias enviadas: %d\n Total de transferencias enviadas: %.2f\n Numero de transferencias recibidas: %d\nTotal de transferencias recibidas: %.2f\n Para volver 99\n", informe->numeroCuenta, informe->nombreTitular, informe->saldoFinal, informe->numDepositos, informe->totalDepositos, informe->numRetiros, informe->totalRetiros, informe->numTransferenciasEnviadas, informe->totalTransferenciasEnviadas, informe->numTransferenciasRecibidas, informe->totalTransferenciasRecibidas);
+            send(ClientSocket, bufferInforme, strlen(bufferInforme), 0);
+            break;
+        case cerrarCuenta:
+            int userID;
+            userID = db_obtener_usuarioID(results[1].c_str());
+            cli = db_buscar_cliente_por_usuarioID(userID);
+            db_cerrar_cuenta(cli->clienteID);
+            break;
+    }
 }
 
 
@@ -210,16 +236,25 @@ int main(int argc, char* argv[])
 
     // Receive until the peer shuts down the connection
     do {
-
         iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
 
-        int tam=strlen(recvbuf);
-        char* textoFinal=new char[tam+1];
-        strcpy(textoFinal,recvbuf);
-        textoFinal[tam]='\0';
-       
+        int tam = strlen(recvbuf);
+        char* textoFinal = new char[tam + 1];
+        strcpy(textoFinal, recvbuf);
+        textoFinal[tam] = '\0';
+
         if (iResult > 0) {
-            cout<<"Solicitud recibida: "<<textoFinal<<endl;
+            // Eliminar caracteres no imprimibles en textoFinal
+            for (int i = 0; textoFinal[i] != '\0'; i++) {
+                if (!isprint(textoFinal[i])) {
+                    for (int j = i; textoFinal[j] != '\0'; j++) {
+                        textoFinal[j] = textoFinal[j + 1];
+                    }
+                    i--;
+                }
+            }
+
+            cout << "Solicitud recibida: " << textoFinal << endl;
             interpretar(ClientSocket, textoFinal);
             if (iSendResult == SOCKET_ERROR) {
                 printf("send failed with error: %d\n", WSAGetLastError());
@@ -228,18 +263,19 @@ int main(int argc, char* argv[])
                 return 1;
             }
         }
-        else if (iResult == 0){
+        else if (iResult == 0) {
             printf("Cerrando conexion con el cliente...\n");
         }
-        else  {
+        else {
             printf("recv failed with error: %d\n", WSAGetLastError());
             closesocket(ClientSocket);
             WSACleanup();
-            cout<<iResult<<endl;
+            cout << iResult << endl;
             return 1;
         }
 
-    } while (iResult > 0);
+    }while(iResult > 0);
+
 
     // shutdown the connection since we're done
     iResult = shutdown(ClientSocket, SD_SEND);

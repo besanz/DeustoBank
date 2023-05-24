@@ -27,7 +27,7 @@ void enviarMenuInicial(SOCKET ClientSocket);
 void enviarMenuUsuario(SOCKET ClientSocket);
 void enviarMenuRetirar(SOCKET ClientSocket);
 void enviarMenuDepositar(SOCKET ClientSocket);
-void mostrarCliente(SOCKET ClientSocket, Usuario* usuario);
+
 
 
 #endif
