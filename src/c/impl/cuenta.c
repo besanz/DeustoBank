@@ -35,7 +35,7 @@ void crear_cuenta(int clienteID) {
     sqlite3_stmt *stmt;
     int rc;
 
-    if (abrir_db(&db)) {
+    if (abrir_db(&db, ruta_db)) {
         fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
         return;
     }
@@ -69,7 +69,7 @@ int cuenta_existe(const char *numero_cuenta) {
     int rc;
     int cuenta_encontrada = 0;
 
-    if (abrir_db(&db)) {
+    if (abrir_db(&db, ruta_db)) {
         fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
         return 0;
     }

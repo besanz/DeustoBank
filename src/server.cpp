@@ -28,21 +28,31 @@ extern "C"{
 using namespace std;
 
 void interpretar(SOCKET ClientSocket, char *solicitud){
-    Usuario *usuario;
-    Cliente *cliente;
+    Usuario* us;
+    Cliente* cli;
     vector<string> results;
     results=split(solicitud,';');
     for(int i =0; i<results.size()-1;i++){
         cout<<results[i]<<endl;
     }
-    
-
+    char* user;
+    char* datos;
     const int opcion= stoi(results[0]);
+    const int volver=99;
     const int empezar=0;
     const int inicioSesion=1;
     const int registro=2;
     const int validarUser=11;
-    
+    const int registrar=12;
+    const int mostrarInformacionCliente=21;
+    const int mostrarInformacionCuenta=22;
+    const int depositar=23;
+    const int retirar=24;
+    const int transferencia=24;
+    const int mostrarTransacciones=26;
+    const int imprimirInformeFinanciero=27;
+    const int cerrarCuenta=28;
+
     //Aqui empieza el menu
     switch(opcion){
         case empezar:
@@ -54,28 +64,61 @@ void interpretar(SOCKET ClientSocket, char *solicitud){
             break; 
             
         case registro:
-
+            send(ClientSocket, (char*)"Introduzca los datos con el siguiente formato:\n12;Nombre de usuario;Contrasena;Nombre;Apellido;DNI;Direccion;Telefono;", strlen((char*)"Introduzca los datos con el siguiente formato:\n21;Nombre;Apellido;DNI;Direccion;Telefono;"), 0);
             break;
-                
+        case registrar:
+            strcpy(us->nombreUsuario, (results[1].c_str()));
+            strcpy(us->contrasena, (results[2].c_str()));
+            
+            strcpy(cli->nombre, (results[3].c_str()));
+            strcpy(cli->apellido, (results[4].c_str()));
+            strcpy(cli->dni, (results[5].c_str()));
+            strcpy(cli->direccion, (results[6].c_str()));
+            strcpy(cli->telefono, (results[7].c_str()));
+
+            db_registrar_usuario(us);
+            db_registrar_cliente(cli, us);
+
+            enviarMenuUsuario(ClientSocket);
+            
+            break;
         case validarUser: 
-            char* user = new char[results[1].length() + 1];
-            strcpy(user, (results[1].c_str()));
-
-            char* contra = new char[results[2].length() + 1];
-            strcpy(contra, (results[2].c_str()));
-
-            Usuario* usu= db_validar_credenciales(user,contra);
-            
-            
-            if(usu!=nullptr){
-                //enviarMenuUsuario(ClientSocket);
-                cout<<"Coge bien el usuario"<<endl;
+            strcpy(user, results[1].c_str());
+            int existe;
+            existe = db_existe_usuario(user);
+            if(existe==1){
+                
+                enviarMenuUsuario(ClientSocket);
+            }else{
+                send(ClientSocket, (char *)"Contraseña o usuario incorrecto. \n Introduzca usuario y contrasenya con el siguiente formato: \n 11;Usuario;Contrasenya",strlen((char *)"Contraseña o usuario incorrecto. \n Introduzca usuario y contrasenya con el siguiente formato: \n 11;Usuario;Contrasenya"), 0);
             }
-            else {
-                //send(ClientSocket, (char *)"Contraseña o usuario incorrecto. \n Introduzca usuario y contrasenya con el siguiente formato: \n 11;Usuario;Contrasenya",strlen((char *)"Contraseña o usuario incorrecto. \n Introduzca usuario y contrasenya con el siguiente formato: \n 11;Usuario;Contrasenya"), 0);
-                cout<<"No coge bien el usuario"<<endl;
-            } 
-        break;
+            break;
+        case volver:
+            enviarMenuUsuario(ClientSocket);
+            break;
+        case mostrarInformacionCliente:
+            //us->usuarioID=db_obtener_usuarioID(results[1].c_str());
+            //mostrarCliente(ClientSocket, us);
+            /*strcpy(datos, cli->nombre);
+            strcat(datos,"\n");
+            strcat(datos, cli->apellido); 
+            strcat(datos,"\n");
+            strcat(datos, cli->dni);
+            strcat(datos,"\n");
+            strcat(datos, cli->direccion); 
+            strcat(datos,"\n"); 
+            strcat(datos, cli->telefono);
+        
+            // Asegurarse de que datos termine con el carácter nulo
+            datos[sizeof(datos) - 1] = '\0';
+            */
+            
+            
+            break;
+        case mostrarInformacionCuenta:
+            CuentaBancaria* cuenta=db_buscar_cuenta_por_clienteID();
+            
+       
     }
     
     
