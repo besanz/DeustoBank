@@ -46,7 +46,7 @@ void interpretar(SOCKET ClientSocket, char *solicitud){
     const int mostrarInformacionCliente=21;
     const int mostrarInformacionCuenta=22;
     const int depositar=23;
-    const int realizarDeposito=231;
+    const int realizarDeposito=29;
     const int retirar=24;
     const int realizarRetiro=241;
     const int transferencia=25;
@@ -124,13 +124,17 @@ void interpretar(SOCKET ClientSocket, char *solicitud){
             
             break;
         case depositar:
-            int userID;
-            userID=db_obtener_usuarioID(results[1].c_str());
-            cli=db_buscar_cliente_por_usuarioID(userID);
             enviarMenuDepositar(ClientSocket);
             break;
         case realizarDeposito:
-            //db_depositar_dinero();
+            int useID;
+            useID=db_obtener_usuarioID(results[1].c_str());
+            cli=db_buscar_cliente_por_usuarioID(useID);
+            float cantidad;
+            cantidad=std::stof(results[2]);
+            db_depositar_dinero(cli->clienteID, cantidad);
+            send(ClientSocket, (char*)"Deposito realizado correctamente, introduzca 99 para volver.", strlen((char*)"Deposito realizado correctamente, introduzca 99 para volver."),0);
+            
             break;
 
         case imprimirInformeFinanciero:
