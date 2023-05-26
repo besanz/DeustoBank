@@ -26,14 +26,10 @@ g++ -std=c++11 src/cpp/impl/client_main.cpp obj/socket_client.o obj/db.o obj/cli
 ```
 # ServidorCpp:
 ```
-g++ server.cpp cpp/impl/menu.cpp cpp/impl/Split.cpp c/impl/db.o ../lib/sqlite3.o c/impl/transaccion.o c/impl/cliente.o c/impl/cuenta.o c/impl/usuario.o -o servidor -lws2_32
-
 g++ src/server.cpp src/cpp/impl/menu.cpp src/cpp/impl/Split.cpp src/c/impl/db.o lib/sqlite3.o src/c/impl/transaccion.o src/c/impl/cliente.o src/c/impl/cuenta.o src/c/impl/usuario.o -o servidor -lws2_32
 ```
 # ClienteCpp:
 ```
-g++ client.cpp cpp/impl/socket.cpp -o cliente -lws2_32
-
 g++ src/client.cpp src/cpp/impl/socket.cpp -o cliente -lws2_32
 ```
 
@@ -43,7 +39,7 @@ g++ src/client.cpp src/cpp/impl/socket.cpp -o cliente -lws2_32
 ./client.exe
 ```
 
-# Usuarios Test (usuario, contraseña):
+# Usuarios Test (usuario, contrasenya):
 
 - jose, jose
 - besanz, besanz
@@ -81,7 +77,9 @@ Toda la información se almacena en deustobank.db
 
 # Uso:
 
-./deustobank
+client.exe y server.exe sobre la cmd, o ./client ./server sobre el powershell. 
+
+Ejecutar sobre el directorio raíz (./)
 
 
 # Licencia

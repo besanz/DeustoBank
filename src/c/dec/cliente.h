@@ -17,7 +17,7 @@ Cliente* iniciar_sesion(char* usuario, char* contrasena);
 /*
  * Verificar Credenciales
  * @param nombreUsuario: Puntero a una cadena de caracteres que representa el nombre de usuario del cliente.
- * @param contrasena: Puntero a una cadena de caracteres que representa la contraseña del cliente.
+ * @param contrasena: Puntero a una cadena de caracteres que representa la contrasenya del cliente.
  * @return: Valor booleano (true/false) que indica si las credenciales son correctas.
 */
 bool verificar_credenciales(const char *nombreUsuario, const char *contrasena);

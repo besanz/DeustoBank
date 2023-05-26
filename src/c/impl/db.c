@@ -533,7 +533,7 @@ void db_transferir_dinero(int clienteID_origen, int clienteID_destino, float can
     {
         time_t fecha = time(NULL);
         db_agregar_transaccion_por_clienteID(clienteID_origen, clienteID_destino, cantidad, fecha, TRANSFERENCIA);
-        temporizador_realizar_transferencia();
+        //temporizador_realizar_transferencia();
     }
 }
 

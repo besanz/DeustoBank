@@ -67,7 +67,7 @@ int db_obtener_usuarioID(const char *nombreUsuario);
 /*
  * Valida las credenciales de un usuario en la base de datos.
  * @param usuario: Cadena de caracteres que representa el nombre de usuario a validar.
- * @param contrasena: Cadena de caracteres que representa la contraseña a validar.
+ * @param contrasena: Cadena de caracteres que representa la contrasenya a validar.
  * @return: Puntero a una estructura de tipo Usuario si las credenciales son correctas, NULL en caso contrario.
 */
 Usuario *db_validar_credenciales(const char *usuario, const char *contrasena);
@@ -192,7 +192,7 @@ Informe *generar_informe_financiero(int clienteID);
  * Guarda un informe financiero en un archivo de texto.
  * @param informe: Puntero a una estructura de tipo Informe que contiene la informacion del informe financiero a guardar.
  * @param nombre_cliente: Cadena de caracteres que representa el nombre del cliente al que pertenece el informe financiero.
- * @param year: Entero que representa el año del informe financiero.
+ * @param year: Entero que representa el anyo del informe financiero.
 */
 void guardar_informe_en_txt(Informe *informe, const char *nombre_cliente, int year);
 

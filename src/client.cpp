@@ -1,5 +1,6 @@
 #include "cpp/dec/socket.h"
 #include <iostream>
+#include <cstdlib>
 
 using namespace sockets;
 using namespace std;
@@ -22,4 +23,5 @@ int main() {
         
     } while( opcion[0] != 'q');
     delete s;
+    return 0;
 }
